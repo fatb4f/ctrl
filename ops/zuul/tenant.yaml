@@ -1,0 +1,8 @@
+- tenant:
+    name: ctrl
+    source:
+      gerrit:
+        config-projects:
+          - ctrl-config
+        untrusted-projects:
+          - ctrl

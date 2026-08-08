@@ -1,0 +1,19 @@
+labels:
+  - name: ctrl-worker
+
+providers:
+  - name: ctrl-static
+    driver: static
+    pools:
+      - name: isolated
+        nodes:
+          - name: ctrl-worker.internal
+            labels: [ctrl-worker]
+            username: zuul-worker
+            connection-port: 22
+            host-key-checking: true
+            max-parallel-jobs: 1
+
+zookeeper-servers:
+  - host: zookeeper
+    port: 2281

@@ -1,0 +1,12 @@
+- hosts: all
+  tasks:
+    - name: Assert the worker has no container-engine socket
+      ansible.builtin.stat:
+        path: /var/run/docker.sock
+      register: docker_socket
+      failed_when: docker_socket.stat.exists
+    - name: Check pinned tools
+      ansible.builtin.command:
+        cmd: just tools-check
+        chdir: "{{ zuul.project.src_dir }}"
+      changed_when: false

@@ -1,0 +1,59 @@
+- pipeline:
+    name: check
+    description: Validate every Gerrit patch set.
+    manager: independent
+    trigger:
+      gerrit:
+        - event: patchset-created
+        - event: change-restored
+        - event: comment-added
+          comment: (?i)^(recheck|reverify)$
+    success:
+      gerrit:
+        Verified: 1
+    failure:
+      gerrit:
+        Verified: -1
+
+- pipeline:
+    name: gate
+    description: Speculatively qualify and submit approved topic stacks.
+    manager: dependent
+    precedence: high
+    supercedes: check
+    require:
+      gerrit:
+        open: true
+        current-patchset: true
+        approval:
+          - Code-Review: 2
+            username: ^(?!zuul$).+
+    trigger:
+      gerrit:
+        - event: comment-added
+          approval:
+            - Code-Review: 2
+    success:
+      gerrit:
+        submit: true
+    failure:
+      gerrit: {}
+
+- pipeline:
+    name: periodic
+    description: Clean-room qualification and restore probes of submitted main.
+    manager: independent
+    precedence: low
+    trigger:
+      timer:
+        - time: "0 4 * * *"
+
+- pipeline:
+    name: release
+    description: Build independently versioned artifacts from submitted tags.
+    manager: independent
+    precedence: high
+    trigger:
+      gerrit:
+        - event: ref-updated
+          ref: ^refs/tags/(kernel-spec|ppf|runtime-promptgen|tdd-agent-skills)/v.*$

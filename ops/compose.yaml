@@ -1,0 +1,173 @@
+name: ctrl-review
+
+x-locked-service: &locked-service
+  restart: unless-stopped
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  read_only: true
+
+services:
+  zookeeper:
+    <<: *locked-service
+    image: ${ZOOKEEPER_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10001:10001"
+    tmpfs: [/tmp]
+    volumes:
+      - zookeeper-data:/data
+    networks: [control]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 1G}
+
+  mariadb:
+    <<: *locked-service
+    image: ${MARIADB_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10002:10002"
+    tmpfs: [/tmp, /run/mysqld]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks: [control]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 2G}
+
+  gerrit:
+    <<: *locked-service
+    image: ${GERRIT_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10003:10003"
+    tmpfs: [/tmp]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes:
+      - gerrit-site:/var/gerrit
+    networks: [control, edge]
+    deploy:
+      resources:
+        limits: {cpus: "4", memory: 8G}
+
+  zuul-scheduler:
+    <<: *locked-service
+    image: ${ZUUL_SCHEDULER_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10004:10004"
+    tmpfs: [/tmp]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes:
+      - ./zuul:/etc/zuul:ro
+      - ${ZUUL_SSH_KEY:?path to the operator-owned Zuul SSH key}:/run/secrets/zuul-ssh:ro
+    networks: [control]
+    depends_on: [zookeeper, mariadb, gerrit]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 2G}
+
+  zuul-merger:
+    <<: *locked-service
+    image: ${ZUUL_MERGER_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10005:10005"
+    tmpfs: [/tmp, /var/lib/zuul]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes:
+      - ./zuul:/etc/zuul:ro
+      - ${ZUUL_SSH_KEY:?path to the operator-owned Zuul SSH key}:/run/secrets/zuul-ssh:ro
+    networks: [control]
+    depends_on: [zookeeper, gerrit]
+    deploy:
+      resources:
+        limits: {cpus: "2", memory: 4G}
+
+  zuul-executor:
+    <<: *locked-service
+    image: ${ZUUL_EXECUTOR_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10006:10006"
+    tmpfs: [/tmp, /var/lib/zuul]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes:
+      - ./zuul:/etc/zuul:ro
+      - ${ZUUL_SSH_KEY:?path to the operator-owned Zuul SSH key}:/run/secrets/zuul-ssh:ro
+    networks: [control, worker]
+    depends_on: [zookeeper, mariadb]
+    deploy:
+      resources:
+        limits: {cpus: "4", memory: 8G}
+
+  zuul-web:
+    <<: *locked-service
+    image: ${ZUUL_WEB_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10007:10007"
+    tmpfs: [/tmp]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    volumes: [./zuul:/etc/zuul:ro]
+    networks: [control, edge]
+    depends_on: [zookeeper, mariadb]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 1G}
+
+  nodepool-launcher:
+    <<: *locked-service
+    image: ${NODEPOOL_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10008:10008"
+    tmpfs: [/tmp]
+    volumes:
+      - ./zuul/nodepool.yaml:/etc/nodepool/nodepool.yaml:ro
+      - ${ZUUL_SSH_KEY:?path to the operator-owned Zuul SSH key}:/run/secrets/zuul-ssh:ro
+    networks: [control, worker]
+    depends_on: [zookeeper]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 1G}
+
+  static-worker:
+    <<: *locked-service
+    image: ${WORKER_IMAGE:?set an image@sha256 digest from images.lock.json}
+    hostname: ctrl-worker.internal
+    user: "11000:11000"
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+      - /workspace:size=8g,uid=11000,gid=11000,mode=0700
+    volumes:
+      - ${WORKER_AUTHORIZED_KEYS:?path to operator-owned authorized_keys}:/run/secrets/authorized_keys:ro
+    networks: [worker]
+    deploy:
+      resources:
+        limits: {cpus: "4", memory: 8G}
+
+  oauth2-proxy:
+    <<: *locked-service
+    image: ${OAUTH2_PROXY_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10009:10009"
+    tmpfs: [/tmp]
+    env_file: [${CTRL_SECRET_ENV:?path to an operator-owned secret env file}]
+    networks: [edge]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 512M}
+
+  reverse-proxy:
+    <<: *locked-service
+    image: ${REVERSE_PROXY_IMAGE:?set an image@sha256 digest from images.lock.json}
+    user: "10010:10010"
+    cap_add: [NET_BIND_SERVICE]
+    tmpfs: [/tmp, /config]
+    ports: ["443:443"]
+    volumes:
+      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${TLS_CERTIFICATE:?path to the TLS certificate}:/run/secrets/tls.crt:ro
+      - ${TLS_PRIVATE_KEY:?path to the TLS private key}:/run/secrets/tls.key:ro
+    networks: [edge]
+    depends_on: [oauth2-proxy, gerrit, zuul-web]
+    deploy:
+      resources:
+        limits: {cpus: "1", memory: 512M}
+
+networks:
+  control:
+    internal: true
+  worker:
+    internal: true
+  edge: {}
+
+volumes:
+  zookeeper-data: {}
+  mariadb-data: {}
+  gerrit-site: {}

@@ -1,0 +1,13 @@
+.venv/
+.jj/
+.hypothesis/
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+dist/
+*.egg-info/
+*.env
+*.key
+*.pem
+ops/state/
+ops/backups/

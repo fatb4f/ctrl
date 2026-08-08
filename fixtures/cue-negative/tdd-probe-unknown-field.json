@@ -1,0 +1,10 @@
+{
+  "id": "probe.invalid",
+  "fixtureID": "fixture.invalid",
+  "obligationIDs": ["obligation.invalid"],
+  "stimulus": {"argv": ["false"]},
+  "oracle": {"exitCode": 1},
+  "timeoutSeconds": 1,
+  "captureClaims": [],
+  "undeclared": true
+}

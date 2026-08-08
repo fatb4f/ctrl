@@ -1,0 +1,257 @@
+"""Minimal Cyclopts coordinator for authoritative workflow and repair services."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+from cyclopts import App
+from tdd_agent_skills.workflow.models import WorkflowPlanFailure, WorkflowPlanRequest
+from tdd_agent_skills.workflow.service import compile_workflow_plan
+
+from .artifacts import atomic_write_bytes, pretty_json_bytes
+from .cli_common import content_ref, render_json
+from .contracts import load_contract_bytes
+from .json_input import strict_json_loads
+from .repair import RepairService
+from .workflow import WorkflowService
+
+Json = Any
+
+app = App(
+    name="python-ppf",
+    help="Coordinate PPF workflow transitions and bounded implementation repair.",
+    result_action="return_value",
+)
+workflow_app = App(name="workflow")
+implement_app = App(name="implement")
+app.command(workflow_app, name="workflow")
+app.command(implement_app, name="implement")
+
+
+def _read_json(path: Path) -> dict[str, Json]:
+    document = strict_json_loads(path.read_bytes())
+    if not isinstance(document, dict):
+        raise ValueError(f"expected a JSON object in {path}")
+    return document
+
+
+def _read_contract(path: Path) -> dict[str, Json]:
+    raw = path.read_bytes()
+    return load_contract_bytes(path, raw, require_bundle=False).document
+
+
+def _write(path: Path, document: dict[str, Json]) -> None:
+    raw = pretty_json_bytes(document)
+    load_contract_bytes(path, raw, require_bundle=False)
+    atomic_write_bytes(path, raw)
+
+
+@workflow_app.command(name="plan")
+def plan_workflow(
+    input_binding: Path,
+    *,
+    workflow_id: str,
+    mode: str,
+    at: str,
+    output: Path,
+) -> int:
+    """Bind inputs and create the first declared workflow transition."""
+    binding = _read_contract(input_binding)
+    result = WorkflowService().plan(
+        workflow_id=workflow_id,
+        mode=mode,
+        input_binding_ref=content_ref(binding["bindingId"], binding),
+        at=at,
+    )
+    _write(output, result)
+    render_json({"workflow": str(output), "currentState": result["currentState"]})
+    return 0
+
+
+@workflow_app.command(name="compile")
+def compile_workflow(
+    plan: Path,
+    *,
+    fixtures: Path,
+    probes: Path,
+    realizations: Path,
+    output: Path | None = None,
+    check: Path | None = None,
+) -> int:
+    """Compile a typed Markdown plan or check its committed snapshot."""
+    result = compile_workflow_plan(
+        WorkflowPlanRequest(
+            plan_path=plan,
+            fixture_specs_path=fixtures,
+            probes_path=probes,
+            realization_specs_path=realizations,
+            output_path=output,
+            check_path=check,
+        )
+    )
+    print(
+        json.dumps(
+            {
+                "operation": "workflow.compile",
+                "mode": result.mode,
+                "snapshotPath": result.snapshot_path.as_posix(),
+                "fullDigest": result.full_digest,
+                "semanticDigest": result.semantic_digest,
+                "written": result.written,
+            },
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+    )
+    return 0
+
+
+@workflow_app.command(name="next")
+def next_workflow(workflow: Path) -> int:
+    """Return the next operation without assigning workflow state."""
+    document = _read_contract(workflow)
+    render_json({"next": WorkflowService().next_action(document)})
+    return 0
+
+
+@workflow_app.command
+def resume(workflow: Path) -> int:
+    """Return resumable workflow state and its next operation."""
+    document = _read_contract(workflow)
+    render_json(
+        {
+            "workflowId": document["workflowId"],
+            "currentState": document["currentState"],
+            "next": WorkflowService().next_action(document),
+        }
+    )
+    return 0
+
+
+@implement_app.command
+def baseline(
+    workflow: Path,
+    iteration: Path,
+    *,
+    decision: str,
+    output: Path,
+) -> int:
+    """Record a judged baseline and its declared routing decision."""
+    result = WorkflowService().record_baseline(
+        _read_contract(workflow),
+        iteration=_read_json(iteration),
+        decision=decision,
+    )
+    _write(output, result)
+    render_json({"workflow": str(output), "currentState": result["currentState"]})
+    return 0
+
+
+@implement_app.command
+def repair(
+    repository_root: Path,
+    decision: Path,
+    patch: Path,
+    *,
+    workflow_id: str,
+    applied_at: str,
+    output: Path,
+) -> int:
+    """Apply and atomically promote one post-verified repair tree."""
+    decision_raw = decision.read_bytes()
+    decision_document = load_contract_bytes(
+        decision,
+        decision_raw,
+        require_bundle=False,
+    ).document
+    decision_ref = {
+        "id": decision_document["decisionId"],
+        "digest": "sha256:" + hashlib.sha256(decision_raw).hexdigest(),
+        "uri": f"bundle:{decision.name}",
+    }
+    service = RepairService()
+    prepared = service.prepare(
+        repository=repository_root,
+        workflow_id=workflow_id,
+        decision=decision_document,
+        decision_ref=decision_ref,
+        patch=patch.read_bytes(),
+        applied_at=applied_at,
+    )
+    previous_output = output.read_bytes() if output.exists() else None
+    _write(output, prepared.record)
+    try:
+        record = service.promote(prepared)
+    except Exception:
+        if previous_output is None:
+            output.unlink(missing_ok=True)
+        else:
+            atomic_write_bytes(output, previous_output)
+        raise
+    render_json(
+        {
+            "repairRecord": str(output),
+            "resultCommit": record["resultCommit"],
+            "promotedRef": record["promotedRef"],
+        }
+    )
+    return 0
+
+
+@implement_app.command(name="iteration")
+def record_iteration(
+    workflow: Path,
+    implementation_iteration: Path,
+    *,
+    output: Path,
+) -> int:
+    """Record a targeted replay judgment as an implementation iteration."""
+    result = WorkflowService().record_implementation(
+        _read_contract(workflow),
+        iteration=_read_json(implementation_iteration),
+    )
+    _write(output, result)
+    render_json(
+        {
+            "workflow": str(output),
+            "currentState": result["currentState"],
+            "implementationIterations": len(result["implementationIterations"]),
+        }
+    )
+    return 0
+
+
+@implement_app.command
+def complete(
+    workflow: Path,
+    qualification_iteration: Path,
+    *,
+    output: Path,
+) -> int:
+    """Record full qualification and enter the authoritative terminal state."""
+    result = WorkflowService().complete(
+        _read_contract(workflow),
+        iteration=_read_json(qualification_iteration),
+    )
+    _write(output, result)
+    render_json({"workflow": str(output), "currentState": result["currentState"]})
+    return 0 if result["currentState"] == "qualified" else 1
+
+
+def main() -> int:
+    try:
+        return app()
+    except WorkflowPlanFailure as error:
+        print(
+            json.dumps(
+                {"error": error.kind, "message": str(error)},
+                separators=(",", ":"),
+                sort_keys=True,
+            ),
+            file=sys.stderr,
+        )
+        return 1

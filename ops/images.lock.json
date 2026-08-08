@@ -1,0 +1,18 @@
+{
+  "schema": "https://github.com/fatba4f/ctrl/container-lock/v1",
+  "cutoverReady": false,
+  "images": {
+    "GERRIT_IMAGE": {"version": "3.14.2", "reference": null},
+    "ZUUL_SCHEDULER_IMAGE": {"version": "14.2.0", "reference": null},
+    "ZUUL_MERGER_IMAGE": {"version": "14.2.0", "reference": null},
+    "ZUUL_EXECUTOR_IMAGE": {"version": "14.2.0", "reference": null},
+    "ZUUL_WEB_IMAGE": {"version": "14.2.0", "reference": null},
+    "NODEPOOL_IMAGE": {"version": "14.2.0", "reference": null},
+    "ZOOKEEPER_IMAGE": {"version": "operator-selected", "reference": null},
+    "MARIADB_IMAGE": {"version": "operator-selected", "reference": null},
+    "WORKER_IMAGE": {"version": "operator-built", "reference": null},
+    "OAUTH2_PROXY_IMAGE": {"version": "operator-selected", "reference": null},
+    "REVERSE_PROXY_IMAGE": {"version": "operator-selected", "reference": null}
+  },
+  "gerritPlugins": {}
+}

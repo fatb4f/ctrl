@@ -1,0 +1,7 @@
+- hosts: all
+  tasks:
+    - name: Run locked clean-room qualification
+      ansible.builtin.command:
+        cmd: just qualify
+        chdir: "{{ zuul.project.src_dir }}"
+      changed_when: false
