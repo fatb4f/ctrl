@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis_jsonschema import from_schema
-
 from runtime_promptgen.contracts import (
     SLICE_SCHEMA,
     SliceManifestProjection,

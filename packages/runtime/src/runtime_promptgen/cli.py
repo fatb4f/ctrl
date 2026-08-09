@@ -40,9 +40,7 @@ def promptgen(
     if slice_issue < 1:
         raise ValueError("--slice-issue must be a positive integer")
     if (handoff_session is None) == (handoff_file is None):
-        raise ValueError(
-            "exactly one of --handoff-session or --handoff-file is required"
-        )
+        raise ValueError("exactly one of --handoff-session or --handoff-file is required")
     if handoff_session is not None:
         if _SESSION.fullmatch(handoff_session) is None:
             raise ValueError("--handoff-session is invalid")

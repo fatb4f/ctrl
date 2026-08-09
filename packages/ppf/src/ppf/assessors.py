@@ -113,7 +113,7 @@ class AnsibleAssessor(ProcessAssessor):
         for line in result.stdout.splitlines():
             try:
                 event = strict_json_loads(line)
-            except (UnicodeError, ValueError):
+            except UnicodeError, ValueError:
                 malformed = True
                 continue
             if isinstance(event, dict):
@@ -134,9 +134,7 @@ class AnsibleAssessor(ProcessAssessor):
                 json.dumps(item["res"], sort_keys=True),
             )
         )
-        base["normalizedCode"] = (
-            "ANSIBLE-EVENT-STREAM-ERROR" if malformed else "ANSIBLE-EVENTS"
-        )
+        base["normalizedCode"] = "ANSIBLE-EVENT-STREAM-ERROR" if malformed else "ANSIBLE-EVENTS"
         if malformed:
             base["status"] = "error"
         base["payload"]["events"] = events

@@ -86,14 +86,10 @@ def by_type(
     document_type: str,
 ) -> dict[str, Json]:
     matches = [
-        document
-        for document in documents.values()
-        if document.get("documentType") == document_type
+        document for document in documents.values() if document.get("documentType") == document_type
     ]
     if len(matches) != 1:
-        raise ValueError(
-            f"expected exactly one {document_type!r} document, found {len(matches)}"
-        )
+        raise ValueError(f"expected exactly one {document_type!r} document, found {len(matches)}")
     return matches[0]
 
 

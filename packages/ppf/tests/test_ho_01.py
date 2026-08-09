@@ -32,11 +32,14 @@ def test_binding_domains_are_equivalent(
     keywords: dict[str, int],
 ) -> None:
     wrapped = transparent_wrapper(ordinary)
-    assert binding_domain_difference(
-        ordinary,
-        wrapped,
-        [(tuple(arguments), keywords)],
-    ) is None
+    assert (
+        binding_domain_difference(
+            ordinary,
+            wrapped,
+            [(tuple(arguments), keywords)],
+        )
+        is None
+    )
 
 
 def test_broken_wrapper_produces_a_replayable_boundary_counterexample() -> None:

@@ -391,7 +391,7 @@ def _workspace_lock(root: Path) -> Path:
             document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
             members = document["tool"]["uv"]["workspace"]["members"]
             relative_root = root.relative_to(parent).as_posix()
-        except (KeyError, OSError, UnicodeError, ValueError, tomllib.TOMLDecodeError):
+        except KeyError, OSError, UnicodeError, ValueError, tomllib.TOMLDecodeError:
             continue
         if isinstance(members, list) and relative_root in members:
             return parent / "uv.lock"

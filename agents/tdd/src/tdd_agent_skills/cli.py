@@ -8,8 +8,7 @@ from pathlib import Path
 
 from cyclopts import App
 
-from .workflow.models import WorkflowPlanFailure, WorkflowPlanRequest
-from .workflow.service import compile_workflow_plan
+from .workflow import WorkflowPlanFailure, WorkflowPlanRequest, compile_workflow_plan
 
 app = App(name="python-ppf")
 workflow = App(name="workflow")

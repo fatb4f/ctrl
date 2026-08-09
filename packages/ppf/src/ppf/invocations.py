@@ -21,10 +21,7 @@ def stable_stage_order(stage_registry: dict[str, Json]) -> list[str]:
     index = {stage["id"]: offset for offset, stage in enumerate(stages)}
     if len(index) != len(stages):
         raise InvocationCompilationError("duplicate stage identifiers")
-    incoming = {
-        stage["id"]: set(stage.get("dependsOn", []))
-        for stage in stages
-    }
+    incoming = {stage["id"]: set(stage.get("dependsOn", [])) for stage in stages}
     outgoing: dict[str, set[str]] = defaultdict(set)
     for stage_id, dependencies in incoming.items():
         for dependency in dependencies:
@@ -63,12 +60,10 @@ def compile_invocation_set(
 ) -> dict[str, Json]:
     """Compile a stable, closed invocation-set sidecar."""
     stage_rank = {
-        stage_id: rank
-        for rank, stage_id in enumerate(stable_stage_order(stage_registry))
+        stage_id: rank for rank, stage_id in enumerate(stable_stage_order(stage_registry))
     }
     assessor_rank = {
-        assessor["id"]: rank
-        for rank, assessor in enumerate(assessor_profile["assessors"])
+        assessor["id"]: rank for rank, assessor in enumerate(assessor_profile["assessors"])
     }
     candidates: list[tuple[int, int, int, dict[str, Json], dict[str, Json]]] = []
     pairs: set[tuple[str, str]] = set()
@@ -80,15 +75,11 @@ def compile_invocation_set(
             if probe_ref in assessor["probeRefs"]
         ]
         if not matched:
-            raise InvocationCompilationError(
-                f"no assessor is declared for probe {probe_ref!r}"
-            )
+            raise InvocationCompilationError(f"no assessor is declared for probe {probe_ref!r}")
         for assessor in matched:
             pair = (case["id"], assessor["id"])
             if pair in pairs:
-                raise InvocationCompilationError(
-                    f"duplicate case/assessor pairing {pair!r}"
-                )
+                raise InvocationCompilationError(f"duplicate case/assessor pairing {pair!r}")
             pairs.add(pair)
             candidates.append(
                 (
@@ -105,9 +96,7 @@ def compile_invocation_set(
     for ordinal, (_, _, _, case, assessor) in enumerate(candidates, start=1):
         generated_id = invocation_id(case["id"], assessor["id"])
         if generated_id in generated_ids:
-            raise InvocationCompilationError(
-                f"invocation identity collision {generated_id!r}"
-            )
+            raise InvocationCompilationError(f"invocation identity collision {generated_id!r}")
         generated_ids.add(generated_id)
         configuration = case["probe"].get("configuration", {})
         argv = configuration.get("argv")
@@ -125,9 +114,7 @@ def compile_invocation_set(
                 "assessorKind": assessor["kind"],
                 "executableRef": assessor["executableRef"],
                 "argv": argv,
-                "workingDirectoryRef": configuration.get(
-                    "workingDirectoryRef", "repository-root"
-                ),
+                "workingDirectoryRef": configuration.get("workingDirectoryRef", "repository-root"),
                 "environmentRef": environment_ref,
                 "sandboxRef": sandbox_ref,
                 "adapterConfig": configuration.get("adapterConfig", {}),

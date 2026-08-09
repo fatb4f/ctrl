@@ -13,7 +13,11 @@ dependencies = [
   "pydantic>=2.11,<3",
   "referencing>=0.36,<1",
   "rfc8785>=0.1.4,<1",
+  "qualification-workflow>=0.1,<0.2",
 ]
+
+[tool.uv.sources]
+qualification-workflow = { workspace = true }
 
 [dependency-groups]
 dev = [

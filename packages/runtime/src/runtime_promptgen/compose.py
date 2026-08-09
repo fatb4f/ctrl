@@ -75,9 +75,7 @@ def _fetch_issue(repository: str, issue: int, workspace: Path) -> bytes:
         detail = read_bounded(stderr, limit=8192, label="gh stderr").decode(
             "utf-8", errors="replace"
         )
-        raise ValueError(
-            f"failed to acquire slice issue {repository}#{issue}: {detail.strip()}"
-        )
+        raise ValueError(f"failed to acquire slice issue {repository}#{issue}: {detail.strip()}")
     return read_bounded(
         snapshot,
         limit=ISSUE_SNAPSHOT_MAX_BYTES,
@@ -139,9 +137,7 @@ def compose_prompt(
             Path(temporary),
         )
     if len(issue_data) > ISSUE_SNAPSHOT_MAX_BYTES:
-        raise ValueError(
-            f"GitHub issue snapshot exceeds {ISSUE_SNAPSHOT_MAX_BYTES} bytes"
-        )
+        raise ValueError(f"GitHub issue snapshot exceeds {ISSUE_SNAPSHOT_MAX_BYTES} bytes")
     issue_document = decode_object(issue_data, label="GitHub issue snapshot")
     issue = IssueSnapshot.model_validate(issue_document)
     if issue.number != slice_issue:
@@ -155,9 +151,7 @@ def compose_prompt(
     slice_document = decode_object(slice_data, label="slice manifest")
     slice_projection = validate_slice(slice_document)
     if slice_projection.parent.repository != slice_repository:
-        raise ValueError(
-            "slice parent repository must equal the repository containing the slice"
-        )
+        raise ValueError("slice parent repository must equal the repository containing the slice")
     validate_mutation_paths(
         repository_root,
         [
@@ -196,8 +190,7 @@ def compose_prompt(
     }
     validate_prompt(prompt)
     data = (
-        json.dumps(prompt, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        + "\n"
+        json.dumps(prompt, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
     ).encode("utf-8")
     _publish(destination, data, protected_source=source)
     return destination

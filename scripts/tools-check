@@ -11,7 +11,11 @@ if ! command -v just >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! command -v cue >/dev/null 2>&1; then
+    echo "missing: cue" >&2
+    exit 1
+fi
+
 if ! command -v lazyjust >/dev/null 2>&1; then
     echo "optional: lazyjust not installed"
 fi
-

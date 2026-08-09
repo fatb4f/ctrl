@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from cyclopts import App
+from qualification_workflow import WorkflowPlanRequest, compile_workflow_plan
 
 from .artifacts import atomic_write_bytes, pretty_json_bytes
 from .cli_common import content_ref, render_json
@@ -26,6 +27,40 @@ workflow_app = App(name="workflow")
 implement_app = App(name="implement")
 app.command(workflow_app, name="workflow")
 app.command(implement_app, name="implement")
+
+
+@workflow_app.command(name="compile")
+def compile_static_workflow(
+    plan: Path,
+    *,
+    fixtures: Path,
+    probes: Path,
+    realizations: Path,
+    output: Path | None = None,
+    check: Path | None = None,
+) -> int:
+    """Compile a typed Markdown plan or check its canonical snapshot."""
+    result = compile_workflow_plan(
+        WorkflowPlanRequest(
+            plan_path=plan,
+            fixture_specs_path=fixtures,
+            probes_path=probes,
+            realization_specs_path=realizations,
+            output_path=output,
+            check_path=check,
+        )
+    )
+    render_json(
+        {
+            "operation": "workflow.compile",
+            "mode": result.mode,
+            "snapshotPath": result.snapshot_path.as_posix(),
+            "fullDigest": result.full_digest,
+            "semanticDigest": result.semantic_digest,
+            "written": result.written,
+        }
+    )
+    return 0
 
 
 def _read_json(path: Path) -> dict[str, Json]:

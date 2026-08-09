@@ -33,9 +33,7 @@ def decode_object(data: bytes, *, label: str) -> dict[str, Any]:
     try:
         value = json.loads(text, object_pairs_hook=reject_duplicates)
     except json.JSONDecodeError as error:
-        raise ValueError(
-            f"{label} is not exactly one JSON document: {error.msg}"
-        ) from error
+        raise ValueError(f"{label} is not exactly one JSON document: {error.msg}") from error
     if not isinstance(value, dict):
         raise ValueError(f"{label} must be a JSON object")  # noqa: TRY004
     return value

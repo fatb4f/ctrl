@@ -1,0 +1,68 @@
+{
+  "$comment": "Transport structure only. Canonical CUE evaluates applicability, references, relations, verdicts, and promotion predicates.",
+  "$defs": {
+    "claimAdmission": {
+      "additionalProperties": false,
+      "properties": {
+        "claimID": {
+          "type": "string"
+        },
+        "observationID": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "SATISFIED",
+            "VIOLATED",
+            "UNKNOWN"
+          ]
+        }
+      },
+      "required": [
+        "claimID",
+        "observationID",
+        "status",
+        "reason"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/fatb4f/ctrl/spec/generated/qualification.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "claims": {
+      "additionalProperties": {
+        "$ref": "#/$defs/claimAdmission"
+      },
+      "type": "object"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "verdict": {
+      "enum": [
+        "QUALIFIED",
+        "INCONCLUSIVE",
+        "REJECTED"
+      ]
+    },
+    "violations": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "claims",
+    "complete",
+    "verdict",
+    "violations"
+  ],
+  "title": "Qualification transport",
+  "type": "object"
+}

@@ -91,8 +91,7 @@ class ToolEnvironmentVerifier:
             missing = sorted(set(declared_files) - actual_files)
             unexpected = sorted(actual_files - set(declared_files))
             raise ToolEnvironmentError(
-                f"environment file closure mismatch: missing={missing!r}, "
-                f"unexpected={unexpected!r}"
+                f"environment file closure mismatch: missing={missing!r}, unexpected={unexpected!r}"
             )
         actual_environment_digest = _file_manifest_digest(root, declared_files)
         if actual_environment_digest != manifest["environmentDigest"]:
@@ -131,16 +130,12 @@ class ToolEnvironmentVerifier:
                 python_inside = "/" + _safe_relative(python_uri).as_posix()
                 prefix = (python_inside, "-I", "-m", entrypoint["module"])
             else:
-                executable = root.joinpath(
-                    *_safe_relative(entrypoint["relativeExecutable"]).parts
-                )
+                executable = root.joinpath(*_safe_relative(entrypoint["relativeExecutable"]).parts)
                 if not executable.is_file():
                     raise ToolEnvironmentError(
                         f"entrypoint executable is unavailable: {entrypoint['id']}"
                     )
-                prefix = (
-                    "/" + _safe_relative(entrypoint["relativeExecutable"]).as_posix(),
-                )
+                prefix = ("/" + _safe_relative(entrypoint["relativeExecutable"]).as_posix(),)
             resolved[entrypoint["id"]] = ResolvedEntrypoint(
                 entrypoint_id=entrypoint["id"],
                 argv_prefix=prefix,

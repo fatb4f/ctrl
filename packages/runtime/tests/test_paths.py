@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from runtime_promptgen.paths import (
     resolve_input_and_output,
     resolve_mutation_target,

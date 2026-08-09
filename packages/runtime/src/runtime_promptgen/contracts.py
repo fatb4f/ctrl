@@ -6,6 +6,7 @@ from typing import Any
 from handoff import handoff_schema
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import ValidationError as JSONSchemaValidationError
+from jsonschema.protocols import Validator
 from pydantic import ValidationError as PydanticValidationError
 from referencing import Registry, Resource
 
@@ -46,7 +47,7 @@ _prompt_validator = Draft202012Validator(
 
 
 def _validate(
-    validator: Draft202012Validator,
+    validator: Validator,
     document: dict[str, Any],
     *,
     label: str,

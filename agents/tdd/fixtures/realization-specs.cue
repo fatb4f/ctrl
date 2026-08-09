@@ -1,6 +1,6 @@
 package workflowfixtures
 
-import planning "github.com/fatb4f/tdd-agent-skills/contracts/planning"
+import planning "github.com/fatb4f/ctrl/spec/qualification/workflow:planning"
 
 realizationSpecs: [planning.#RealizationSpec & {
 	id:      "realization.workflow-example"

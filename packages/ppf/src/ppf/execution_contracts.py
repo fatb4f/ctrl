@@ -140,9 +140,7 @@ def _invocation_errors(
 def _tool_environment_errors(document: dict[str, Json]) -> list[ValidationError]:
     errors: list[ValidationError] = []
     distributions = document.get("distributions", [])
-    distribution_ids = [
-        item.get("id") for item in distributions if isinstance(item, dict)
-    ]
+    distribution_ids = [item.get("id") for item in distributions if isinstance(item, dict)]
     duplicate_distributions = sorted(_duplicates(distribution_ids))
     if duplicate_distributions:
         errors.append(
@@ -183,9 +181,7 @@ def _tool_environment_errors(document: dict[str, Json]) -> list[ValidationError]
                 f"duplicate entrypoint ids: {duplicate_entrypoints!r}",
             )
         )
-    entrypoint_index = {
-        item.get("id"): item for item in entrypoints if isinstance(item, dict)
-    }
+    entrypoint_index = {item.get("id"): item for item in entrypoints if isinstance(item, dict)}
     for index, entrypoint in enumerate(entrypoints):
         if not isinstance(entrypoint, dict):
             continue

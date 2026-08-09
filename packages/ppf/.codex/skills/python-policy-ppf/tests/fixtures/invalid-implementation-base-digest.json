@@ -9,7 +9,7 @@
   },
   "profileRef": {
     "id": "python-3.14-default",
-    "digest": "sha256:389c8090c367793b7051a3fa6156512aa8458c2f181e8c7eb1f26cdad416b505",
+    "digest": "sha256:e519d4d9b6c32ed3dd5fd72a3e1a7dc232e92205f7aa895de19566d11cc747de",
     "uri": ".codex/skills/python-policy-ppf/tests/fixtures/valid-profile.json",
     "mediaType": "application/json"
   },
@@ -55,7 +55,7 @@
       },
       "configurationRef": {
         "id": "datamodel-codegen-config",
-        "digest": "sha256:74500160b259dacd9389e61338b27bcd3d4b1441e200fa8727487e83de286cfa",
+        "digest": "sha256:3ffe05a47368375008244912381ae13d7a48cb1f9617bf93e23649e783ede91c",
         "uri": "pyproject.toml",
         "mediaType": "application/toml"
       },

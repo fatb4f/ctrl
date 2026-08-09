@@ -1,6 +1,6 @@
 package jsonstructure
 
-import ks "github.com/fatb4f/kernel-spec/spec:kernelspec"
+import repository "github.com/fatb4f/ctrl/spec/repository"
 
 #Profile: close({
 	id: "json-structure-import"
@@ -21,16 +21,15 @@ import ks "github.com/fatb4f/kernel-spec/spec:kernelspec"
 	})
 })
 
-#Importer: ks.#ImporterDefinition & {
-	id:       "import-json-structure"
-	revision: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-
-	sourceFormat:  #Profile.source.format
-	sourceVersion: #Profile.source.core
-	targetModel:   "model-a-fragment"
-
-	lossPolicy: "reject"
-	resolver:   "resolve-json-structure"
-	lowerer:    "lower-json-structure-to-cue"
-	validator:  "validate-json-structure"
+#Projection: repository.#GeneratedArtifact & {
+	artifact: {
+		path: "generated/json-structure.schema.json"
+		digest: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+		mediaType: "application/schema+json"
+	}
+	authoritativeInputs: [{
+		path: "spec/profiles/import/json-structure/profile.cue"
+		revision: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+	}]
+	role: "projection"
 }

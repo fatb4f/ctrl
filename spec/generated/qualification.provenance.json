@@ -1,0 +1,14 @@
+{
+  "artifactPaths": [
+    "spec/generated/qualification.schema.json",
+    "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py"
+  ],
+  "authoritativeInputs": [
+    {
+      "digest": "sha256:37d2d6baed6f736118410f7d24ea378f84965d3732ec2b084651a4662cffdfb0",
+      "path": "spec/qualification/kernel.cue"
+    }
+  ],
+  "generator": "scripts/generate_qualification_transports.py",
+  "role": "transport-only"
+}

@@ -5,9 +5,8 @@ import stat
 from pathlib import Path
 
 import pytest
-from conftest import issue_snapshot, slice_document, write_handoff
-
 import runtime_promptgen.compose as compose_module
+from conftest import issue_snapshot, slice_document, write_handoff
 from runtime_promptgen.compose import compose_prompt
 from runtime_promptgen.jsonio import (
     ISSUE_SNAPSHOT_MAX_BYTES,
@@ -25,9 +24,7 @@ def test_compose_validates_and_atomically_publishes(
     monkeypatch.setattr(
         compose_module,
         "_fetch_issue",
-        lambda repository, issue, workspace: issue_snapshot(
-            json.dumps(slice_value), number=issue
-        ),
+        lambda repository, issue, workspace: issue_snapshot(json.dumps(slice_value), number=issue),
     )
     output = tmp_path / "nested/prompt.json"
     path = compose_prompt(
@@ -196,9 +193,7 @@ def test_symlink_escape_in_manifest_is_rejected(
     monkeypatch.setattr(
         compose_module,
         "_fetch_issue",
-        lambda repository, issue, workspace: issue_snapshot(
-            json.dumps(slice_value), number=issue
-        ),
+        lambda repository, issue, workspace: issue_snapshot(json.dumps(slice_value), number=issue),
     )
     with pytest.raises(ValueError, match="escapes repository"):
         compose_prompt(

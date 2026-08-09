@@ -7,7 +7,10 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
-EXAMPLE = ROOT / "contracts" / "planning" / "examples" / "normalized_sequence.cue"
+REPOSITORY_ROOT = ROOT.parents[1]
+EXAMPLE = (
+    REPOSITORY_ROOT / "spec" / "qualification" / "workflow" / "examples" / "normalized_sequence.cue"
+)
 
 
 def _cue(*arguments: str) -> subprocess.CompletedProcess[str]:
@@ -15,7 +18,7 @@ def _cue(*arguments: str) -> subprocess.CompletedProcess[str]:
     assert executable is not None, "the CUE executable is required"
     return subprocess.run(
         [executable, *arguments],
-        cwd=ROOT,
+        cwd=REPOSITORY_ROOT,
         capture_output=True,
         check=False,
         text=True,
@@ -23,7 +26,7 @@ def _cue(*arguments: str) -> subprocess.CompletedProcess[str]:
 
 
 def test_normalized_plan_is_an_executable_planning_contract() -> None:
-    completed = _cue("export", str(EXAMPLE.relative_to(ROOT)), "-e", "normalizedPlan")
+    completed = _cue("export", str(EXAMPLE.relative_to(REPOSITORY_ROOT)), "-e", "normalizedPlan")
     assert completed.returncode == 0, completed.stderr
     plan = json.loads(completed.stdout)
 
@@ -71,12 +74,12 @@ def test_normalized_plan_is_an_executable_planning_contract() -> None:
 
 
 def test_normalized_plan_validates_as_cue() -> None:
-    completed = _cue("vet", "-c=false", str(EXAMPLE.relative_to(ROOT)))
+    completed = _cue("vet", "-c=false", str(EXAMPLE.relative_to(REPOSITORY_ROOT)))
     assert completed.returncode == 0, completed.stderr
 
 
 def test_plan_contract_rejects_invariant_violations(tmp_path: Path) -> None:
-    exported = _cue("export", str(EXAMPLE.relative_to(ROOT)), "-e", "normalizedPlan")
+    exported = _cue("export", str(EXAMPLE.relative_to(REPOSITORY_ROOT)), "-e", "normalizedPlan")
     assert exported.returncode == 0, exported.stderr
     valid = json.loads(exported.stdout)
     indexes = {change["id"]: index for index, change in enumerate(valid["changes"])}
@@ -120,7 +123,7 @@ def test_plan_contract_rejects_invariant_violations(tmp_path: Path) -> None:
         path.write_text(json.dumps(plan), encoding="utf-8")
         completed = _cue(
             "vet",
-            str(EXAMPLE.relative_to(ROOT)),
+            str(EXAMPLE.relative_to(REPOSITORY_ROOT)),
             str(path),
             "-d",
             "planSchema",

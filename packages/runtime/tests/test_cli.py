@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 import runtime_promptgen.cli as cli_module
 from runtime_promptgen.cli import main
 

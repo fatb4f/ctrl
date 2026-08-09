@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from runtime_promptgen.jsonio import decode_object
 
 

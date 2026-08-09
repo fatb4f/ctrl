@@ -6,6 +6,7 @@ requires-python = "==3.14.*"
 members = [
     "ctrl",
     "ppf",
+    "qualification-workflow",
     "runtime-promptgen",
     "tdd-agent-skills",
 ]
@@ -778,6 +779,7 @@ dependencies = [
     { name = "cyclopts" },
     { name = "jsonschema", extra = ["format"] },
     { name = "pydantic" },
+    { name = "qualification-workflow" },
     { name = "referencing" },
     { name = "rfc8785" },
 ]
@@ -799,6 +801,7 @@ requires-dist = [
     { name = "cyclopts", specifier = ">=4.2.2,<5" },
     { name = "jsonschema", extras = ["format"], specifier = ">=4.25,<5" },
     { name = "pydantic", specifier = ">=2.11,<3" },
+    { name = "qualification-workflow", editable = "packages/qualification-workflow" },
     { name = "referencing", specifier = ">=0.36,<1" },
     { name = "rfc8785", specifier = ">=0.1.4,<1" },
 ]
@@ -1023,6 +1026,47 @@ wheels = [
 ]
 
 [[package]]
+name = "qualification-workflow"
+version = "0.1.0"
+source = { editable = "packages/qualification-workflow" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "pydantic" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+quality = [
+    { name = "ruff" },
+    { name = "ty" },
+]
+test = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "markdown-it-py", specifier = ">=4,<5" },
+    { name = "pydantic", specifier = ">=2.13,<3" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=9,<10" },
+    { name = "ruff", specifier = ">=0.14" },
+    { name = "ty", specifier = ">=0.0.1a24" },
+]
+quality = [
+    { name = "ruff", specifier = ">=0.14" },
+    { name = "ty", specifier = ">=0.0.1a24" },
+]
+test = [{ name = "pytest", specifier = ">=9,<10" }]
+
+[[package]]
 name = "referencing"
 version = "0.37.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1223,9 +1267,9 @@ version = "0.1.0"
 source = { editable = "agents/tdd" }
 dependencies = [
     { name = "cyclopts" },
-    { name = "markdown-it-py" },
     { name = "pydantic" },
     { name = "pydantic-graph" },
+    { name = "qualification-workflow" },
 ]
 
 [package.dev-dependencies]
@@ -1255,9 +1299,9 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cyclopts", specifier = ">=4,<5" },
-    { name = "markdown-it-py", specifier = ">=4,<5" },
     { name = "pydantic", specifier = ">=2.13,<3" },
     { name = "pydantic-graph", specifier = ">=2.22,<3" },
+    { name = "qualification-workflow", editable = "packages/qualification-workflow" },
 ]
 
 [package.metadata.requires-dev]
