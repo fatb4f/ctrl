@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
+import sys
 import tomllib
 from pathlib import Path
 
@@ -10,10 +10,13 @@ ROOT = Path(__file__).parents[1]
 
 
 def _command(*arguments: str) -> subprocess.CompletedProcess[str]:
-    executable = shutil.which("python-ppf")
-    assert executable is not None, "the installed python-ppf console script is required"
     return subprocess.run(
-        [executable, *arguments],
+        [
+            sys.executable,
+            "-c",
+            "from tdd_agent_skills.cli import main; raise SystemExit(main())",
+            *arguments,
+        ],
         cwd=ROOT,
         capture_output=True,
         check=False,
@@ -45,8 +48,7 @@ def test_workflow_plan_cli_checks_snapshot_as_external_process() -> None:
 
 def test_public_console_surface_is_consolidated() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
-    scripts = project["scripts"]
-    assert scripts == {"python-ppf": "tdd_agent_skills.cli:main"}
+    assert "scripts" not in project
     root_help = _command("--help")
     assert root_help.returncode == 0
     assert "workflow" in root_help.stdout

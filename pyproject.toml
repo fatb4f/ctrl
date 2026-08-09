@@ -21,7 +21,11 @@ Repository = "https://github.com/fatb4f/ctrl"
 package = false
 
 [tool.uv.workspace]
-members = []
+members = [
+  "packages/ppf",
+  "packages/runtime",
+  "agents/tdd",
+]
 
 [dependency-groups]
 test = [

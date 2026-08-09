@@ -9,7 +9,7 @@
   },
   "profileRef": {
     "id": "python-3.14-default",
-    "digest": "sha256:feeeb2bb04827542fbb4b502559aca71576322e0c5a9634016b0a74130994238",
+    "digest": "sha256:389c8090c367793b7051a3fa6156512aa8458c2f181e8c7eb1f26cdad416b505",
     "uri": ".codex/skills/python-policy-ppf/tests/fixtures/valid-profile.json",
     "mediaType": "application/json"
   },
@@ -55,7 +55,7 @@
       },
       "configurationRef": {
         "id": "datamodel-codegen-config",
-        "digest": "sha256:8ccaa6b220dde063f5b6db2e0d7193eacb3b938411a3a108f28f057a59a976b2",
+        "digest": "sha256:74500160b259dacd9389e61338b27bcd3d4b1441e200fa8727487e83de286cfa",
         "uri": "pyproject.toml",
         "mediaType": "application/toml"
       },
@@ -73,7 +73,7 @@
       },
       "inputSchemaRef": {
         "id": "python-policy-ppf-schema",
-        "digest": "sha256:06055b436bb224a4fc76eef96821d7e467eeb1c047b78807945c22e06d7d4eaf",
+        "digest": "sha256:4874cb937054219e6e5ec51d8a856ebeff968dc75deaf4083b76148e607661aa",
         "uri": "src/ppf/schemas/references/python-policy-ppf.schema.json",
         "mediaType": "application/schema+json"
       },

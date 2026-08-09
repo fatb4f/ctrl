@@ -21,6 +21,7 @@ from ppf import ValidationContext, ValidationResult, validate_paths
 from ppf.cli import run_validation
 
 ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = ROOT.parents[1]
 PACKAGE = ROOT / ".codex" / "skills" / "python-policy-ppf"
 SCHEMAS = ROOT / "src" / "ppf" / "schemas"
 FIXTURES = PACKAGE / "tests" / "fixtures"
@@ -55,8 +56,8 @@ class EvidenceRecord(BaseModel):
 
 def _subject_digest(paths: Iterable[Path]) -> str:
     digest = hashlib.sha256()
-    for path in sorted(paths, key=lambda item: item.relative_to(ROOT).as_posix()):
-        digest.update(path.relative_to(ROOT).as_posix().encode())
+    for path in sorted(paths, key=lambda item: item.relative_to(REPOSITORY_ROOT).as_posix()):
+        digest.update(path.relative_to(REPOSITORY_ROOT).as_posix().encode())
         digest.update(b"\0")
         digest.update(path.read_bytes())
         digest.update(b"\0")
@@ -296,7 +297,7 @@ def build_evidence() -> list[EvidenceRecord]:
                 FIXTURES / "valid-profile.json",
                 FIXTURES / "valid-implementation-policy-extension.json",
                 ROOT / "pyproject.toml",
-                ROOT / "uv.lock",
+                REPOSITORY_ROOT / "uv.lock",
             ],
             _fixture_adapter_probe,
         ),

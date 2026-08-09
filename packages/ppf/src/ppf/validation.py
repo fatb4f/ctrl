@@ -265,7 +265,7 @@ def _implementation_lock_errors(
             )
         ]
 
-    lock_path = root / "uv.lock"
+    lock_path = _workspace_lock(root)
     try:
         lock = tomllib.loads(lock_path.read_text(encoding="utf-8"))
     except (OSError, UnicodeError, tomllib.TOMLDecodeError) as error:
@@ -378,6 +378,24 @@ def _implementation_lock_errors(
             )
         )
     return errors
+
+
+def _workspace_lock(root: Path) -> Path:
+    """Return the component lock or its declaring monorepo workspace lock."""
+    component_lock = root / "uv.lock"
+    if component_lock.is_file():
+        return component_lock
+    for parent in root.parents:
+        pyproject = parent / "pyproject.toml"
+        try:
+            document = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+            members = document["tool"]["uv"]["workspace"]["members"]
+            relative_root = root.relative_to(parent).as_posix()
+        except (KeyError, OSError, UnicodeError, ValueError, tomllib.TOMLDecodeError):
+            continue
+        if isinstance(members, list) and relative_root in members:
+            return parent / "uv.lock"
+    return component_lock
 
 
 def validate_documents(

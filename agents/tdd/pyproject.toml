@@ -25,9 +25,6 @@ dependencies = [
   "pydantic-graph>=2.22,<3",
 ]
 
-[project.scripts]
-python-ppf = "tdd_agent_skills.cli:main"
-
 [project.urls]
 Repository = "https://github.com/fatb4f/tdd-agent-skills"
 
