@@ -53,7 +53,7 @@ def export_block(repository_root: Path, block: ExtractedBlock) -> tuple[dict[str
         wrapper = temporary / "record.cue"
         wrapper.write_text(
             "package extracted\n\n"
-            'import planning "github.com/fatba4f/ctrl/agents/tdd/contracts/planning"\n\n'
+            'import planning "github.com/fatb4f/ctrl/agents/tdd/contracts/planning"\n\n'
             f"record: planning.{cue_type} & {{\n{block.body}\n}}\n",
             encoding="utf-8",
         )

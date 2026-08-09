@@ -2,9 +2,9 @@
 
 - **Status:** Accepted architecture; implementation staged
 - **Decision record:**
-  [ADR-0001: App Server qualification and assurance-runtime boundaries](adr/0001-app-server-qualification-and-runtime-boundaries.md)
-- **Normative baseline:** [Qualification P0](qualification-p0-plan/00-summary-and-authority.md)
-- **Runtime specification:** [Diagnostics-Aligned Assurance Runtime v0](assurance-runtime-v0.md)
+  [ADR-0001: App Server qualification and assurance-runtime boundaries](https://github.com/fatb4f/kernel-spec/blob/main/docs/adr/0001-app-server-qualification-and-runtime-boundaries.md)
+- **Normative baseline:** [Qualification P0](https://github.com/fatb4f/kernel-spec/blob/main/docs/qualification-p0-plan/00-summary-and-authority.md)
+- **Runtime specification:** [Diagnostics-Aligned Assurance Runtime v0](https://github.com/fatb4f/kernel-spec/blob/main/docs/assurance-runtime-v0.md)
 - **Approval condition resolved:** Fresh LLM judgments are advisory and cannot
   satisfy hard promotion claims.
 
@@ -345,7 +345,7 @@ External artifacts define obligations, threats, methods, policies, executable ev
 ## 6. Project implementation constraints and ADR boundary
 
 The following technologies are accepted project constraints under
-[ADR-0001](adr/0001-app-server-qualification-and-runtime-boundaries.md). They do
+[ADR-0001](https://github.com/fatb4f/kernel-spec/blob/main/docs/adr/0001-app-server-qualification-and-runtime-boundaries.md). They do
 **not** follow deductively from the landscape comparison.
 
 | Project decision | Current project status | Selection requirements | Survey limitation |

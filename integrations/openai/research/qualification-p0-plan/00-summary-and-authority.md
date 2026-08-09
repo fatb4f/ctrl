@@ -2,8 +2,8 @@
 
 - **Status:** Authoritative qualification baseline
 - **Accepted extension boundary:**
-  [ADR-0001](../adr/0001-app-server-qualification-and-runtime-boundaries.md)
-- **Documentation map:** [Authority and staging](../README.md)
+  [ADR-0001](https://github.com/fatb4f/kernel-spec/blob/main/docs/adr/0001-app-server-qualification-and-runtime-boundaries.md)
+- **Documentation map:** [Authority and staging](https://github.com/fatb4f/kernel-spec/blob/main/docs/README.md)
 
 P0 proves one complete, isolated rollout-feedback episode:
 

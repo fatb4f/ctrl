@@ -1,6 +1,6 @@
 package jsonstructure
 
-import ks "github.com/fatba4f/ctrl/spec:kernelspec"
+import ks "github.com/fatb4f/ctrl/spec:kernelspec"
 
 #Profile: close({
 	id: "json-structure-import"

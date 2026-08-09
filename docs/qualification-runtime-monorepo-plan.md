@@ -2,7 +2,7 @@
 
 ## Summary
 
-- Create public `fatba4f/ctrl` from `kernel-spec`, `ppf`, `runtime`, `tdd-seed`, and `sdk-feedback`, preserving all reachable Git history.
+- Create public `fatb4f/ctrl` from `kernel-spec`, `ppf`, `runtime`, `tdd-seed`, and `sdk-feedback`, preserving all reachable Git history.
 - Keep CUEstrap external to the qualification product boundary. Import neither its code nor its history; any use remains a design or implementation dependency, never a normative authority source.
 - Make Gerrit 3.14.2 the canonical review repository, GitHub the submitted-code mirror and canonical issue tracker, and jj 0.43.x the primary local interface over colocated Git.
 - Gate submission through Zuul 14.2.0, one non-uploader `Code-Review +2`, and automated `Verified +1`.
@@ -10,7 +10,7 @@
 
 ## 1. Repository migration and target structure
 
-1. Create the empty Gerrit project `ctrl` and GitHub repository `fatba4f/ctrl` from the local `~/src/uvt` template. Do not accept development changes until the historical import is complete.
+1. Create the empty Gerrit project `ctrl` and GitHub repository `fatb4f/ctrl` from the local `~/src/uvt` template. Do not accept development changes until the historical import is complete.
 2. Freeze all five source repositories atomically:
    - Land the untracked PPF documentation before freezing.
    - Fast-forward the local `tdd-seed` checkout to its remote.
@@ -80,7 +80,7 @@
   ```
 
 - Have PPF compose the TDD library directly; TDD exposes services and models but does not own a second control-plane executable.
-- Establish one root CUE module: `github.com/fatba4f/ctrl`, language version CUE v0.18.0. Rewrite kernel and TDD imports to the new module paths.
+- Establish one root CUE module: `github.com/fatb4f/ctrl`, language version CUE v0.18.0. Rewrite kernel and TDD imports to the new module paths.
 - Upgrade TDD contracts from CUE v0.14 to v0.18 and qualify all positive and negative fixtures.
 - Replace kernel-spec’s CUEstrap authority references with pinned upstream CUE semantics and local monorepo contracts. CI obtains the official CUE v0.18.0 binary by verified checksum.
 - Use independent post-cutover versions and path-scoped tags:

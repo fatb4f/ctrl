@@ -44,6 +44,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests", "packages/ppf/tests", "packages/runtime/tests", "agents/tdd/tests"]
 addopts = ["-ra", "--strict-config", "--strict-markers", "--import-mode=importlib"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 100

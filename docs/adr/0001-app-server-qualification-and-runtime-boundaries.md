@@ -4,9 +4,9 @@
 - **Decision date:** 2026-08-06
 - **Scope:** Architecture and staged implementation; no promotion authorization
 - **Supersedes:** Nothing
-- **Normative baseline:** [Qualification P0](../qualification-p0-plan/00-summary-and-authority.md)
-- **Supporting specification:** [Diagnostics-Aligned Assurance Runtime v0](../assurance-runtime-v0.md)
-- **Supporting analysis:** [Coding-Agent Assurance Framework and Qualification Architecture](../coding-agent-assurance-framework-landscape.md)
+- **Normative baseline:** [Qualification P0](https://github.com/fatb4f/kernel-spec/blob/main/docs/qualification-p0-plan/00-summary-and-authority.md)
+- **Supporting specification:** [Diagnostics-Aligned Assurance Runtime v0](https://github.com/fatb4f/kernel-spec/blob/main/docs/assurance-runtime-v0.md)
+- **Supporting analysis:** [Coding-Agent Assurance Framework and Qualification Architecture](https://github.com/fatb4f/kernel-spec/blob/main/docs/coding-agent-assurance-framework-landscape.md)
 
 ## Context
 

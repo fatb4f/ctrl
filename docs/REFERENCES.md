@@ -3,9 +3,9 @@
 - **Status:** Supporting research; non-normative
 - **Last reviewed:** 2026-08-08
 - **Scope:** Obligation-governed autonomous qualification runtime
-- **Normative baseline:** [Qualification P0](qualification-p0-plan/00-summary-and-authority.md)
-- **Accepted architecture:** [ADR-0001](adr/0001-app-server-qualification-and-runtime-boundaries.md)
-- **Accepted supporting analysis:** [Architecture landscape](coding-agent-assurance-framework-landscape.md)
+- **Normative baseline:** [Qualification P0](https://github.com/fatb4f/kernel-spec/blob/main/docs/qualification-p0-plan/00-summary-and-authority.md)
+- **Accepted architecture:** [ADR-0001](https://github.com/fatb4f/kernel-spec/blob/main/docs/adr/0001-app-server-qualification-and-runtime-boundaries.md)
+- **Accepted supporting analysis:** [Architecture landscape](https://github.com/fatb4f/kernel-spec/blob/main/docs/coding-agent-assurance-framework-landscape.md)
 
 This document records research, standards, assurance-framework, benchmark, and
 open-source lineage. It does not define obligations, schemas, evidence

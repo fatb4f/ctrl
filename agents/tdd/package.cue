@@ -1,6 +1,6 @@
 package seed
 
-import "github.com/fatba4f/ctrl/agents/tdd/contracts"
+import "github.com/fatb4f/ctrl/agents/tdd/contracts"
 
 packageManifest: contracts.#ObligationsGovernedPackage & {
 	identity: {

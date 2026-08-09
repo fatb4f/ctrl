@@ -3,7 +3,7 @@ package examples
 import (
 	"list"
 
-	"github.com/fatba4f/ctrl/agents/tdd/contracts/planning"
+	"github.com/fatb4f/ctrl/agents/tdd/contracts/planning"
 )
 
 commonExclude: [

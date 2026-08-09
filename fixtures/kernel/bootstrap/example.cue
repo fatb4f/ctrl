@@ -1,6 +1,6 @@
 package bootstrap
 
-import ks "github.com/fatba4f/ctrl/spec:kernelspec"
+import ks "github.com/fatb4f/ctrl/spec:kernelspec"
 
 zero: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
 

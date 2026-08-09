@@ -1,6 +1,6 @@
 package examples
 
-import "github.com/fatba4f/ctrl/agents/tdd/contracts/planning"
+import "github.com/fatb4f/ctrl/agents/tdd/contracts/planning"
 
 validPlan: planning.#ObligationPlan & {
 	schemaVersion: "obligation-plan/v0"

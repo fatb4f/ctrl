@@ -5,7 +5,7 @@ identity; the repository does not provide one.
 
 ```sh
 git remote add gerrit ssh://USER@REVIEW_HOST:29418/ctrl
-git remote add github https://github.com/fatba4f/ctrl.git
+git remote add github https://github.com/fatb4f/ctrl.git
 jj git init --colocate
 jj config set --repo user.name "Your Name"
 jj config set --repo user.email "you@example.com"

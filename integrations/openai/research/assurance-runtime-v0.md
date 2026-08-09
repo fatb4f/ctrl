@@ -1,10 +1,10 @@
 # Diagnostics-Aligned Assurance Runtime v0
 
 - **Status:** Accepted successor specification under
-  [ADR-0001](adr/0001-app-server-qualification-and-runtime-boundaries.md)
+  [ADR-0001](https://github.com/fatb4f/kernel-spec/blob/main/docs/adr/0001-app-server-qualification-and-runtime-boundaries.md)
 - **Normative baseline:**
   [Qualification P0](qualification-p0-plan/00-summary-and-authority.md)
-- **Documentation map:** [Authority and staging](README.md)
+- **Documentation map:** [Authority and staging](https://github.com/fatb4f/kernel-spec/blob/main/docs/README.md)
 
 > Repository publication note: this document is the versioned runtime successor for the
 > qualification architecture. It preserves the existing `workflow-snapshot/v0` contract and

@@ -43,6 +43,12 @@ cue-check:
 policy-check:
     uv run --frozen --no-sync python scripts/repository_policy_check.py
 
+federation-test:
+    uv run --frozen --no-sync pytest tests/test_federation.py
+
+federation-verify manifest="federation/manifest.example.cue" *args:
+    uv run --frozen --no-sync python tools/federation.py {{manifest}} {{args}}
+
 fix:
     uv run --frozen --no-sync ruff check --fix .
     uv run --frozen --no-sync ruff format .
@@ -78,7 +84,9 @@ review topic revset="@":
 jj-smoke:
     uv run --isolated --no-project python tools/vcs/jj_smoke.py
 
-qualify: check test-clean-locked build wheel-smoke migration-verify jj-smoke
+qualify: check test-clean-locked build wheel-smoke
+
+ops-qualify: migration-verify jj-smoke
 
 [private]
 ui:

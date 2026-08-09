@@ -1,10 +1,10 @@
 {
-  "schema": "https://github.com/fatba4f/ctrl/migration-manifest/v1",
+  "schema": "https://github.com/fatb4f/ctrl/migration-manifest/v1",
   "cutoverDate": "2026-08-08",
   "cutoverReady": false,
   "destination": {
     "gerritProject": "ctrl",
-    "githubRepository": "https://github.com/fatba4f/ctrl.git",
+    "githubRepository": "https://github.com/fatb4f/ctrl.git",
     "defaultBranch": "main"
   },
   "rewrite": {

@@ -1,6 +1,6 @@
 package workflowfixtures
 
-import planning "github.com/fatba4f/ctrl/agents/tdd/contracts/planning"
+import planning "github.com/fatb4f/ctrl/agents/tdd/contracts/planning"
 
 fixtureSpecs: [planning.#FixtureSpec & {
 	id:          "fixture.workflow-example"
