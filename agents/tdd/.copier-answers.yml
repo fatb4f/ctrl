@@ -1,0 +1,11 @@
+# Changes here may be overwritten by Copier.
+_commit: a3cac90
+_src_path: /home/_404/src/uvt
+author_email: _404@example.com
+author_name: _404
+description: Seed package for obligation-governed, domain-specialized TDD agent skills.
+distribution_name: tdd-agent-skills
+github_owner: fatb4f
+import_package_name: tdd_agent_skills
+license: MIT
+publish_to_pypi: false

@@ -1,0 +1,41 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.tox/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# --- uv project files ---
+.python-version
+uv.lock.backup
+
+# --- marimo runtime state ---
+__marimo__/cache/
+__marimo__/sessions/
+
+# --- native CUE bindings and build outputs ---
+.deps/
+src/cue-workbook/cue_native/
+*.so
+*.dylib
+*.dll
+*.pyd
+runner/bin/
+runner/go.sum
+/dist/
+
+# --- legacy local compatibility checkouts ---
+.cue-py/
+.libcue/
+
+# --- agent worktrees ---
+.codex/worktrees/
+
+# --- kernel-spec CUE work state ---
+.cue/tmp/
+.cue/cache/
+*.out

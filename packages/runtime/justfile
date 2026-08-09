@@ -1,0 +1,23 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+promptgen *args:
+    uv run promptgen {{args}}
+
+handoffgen *args:
+    uv run handoff create {{args}}
+
+codegen:
+    uv run --group test datamodel-codegen --input src/runtime_promptgen/schemas/slice-manifest.schema.json --input-file-type jsonschema --output src/runtime_promptgen/generated/slice_manifest.py --output-model-type pydantic_v2.BaseModel --class-name SliceManifestProjection --target-python-version 3.14 --use-annotated --field-constraints --strict-types str int bool --strict-refs --schema-version-mode strict --use-double-quotes --disable-timestamp --formatters ruff-check ruff-format
+
+codegen-check:
+    temporary="$(mktemp)"; trap 'rm -f "$temporary"' EXIT; uv run --group test datamodel-codegen --input src/runtime_promptgen/schemas/slice-manifest.schema.json --input-file-type jsonschema --output "$temporary" --output-model-type pydantic_v2.BaseModel --class-name SliceManifestProjection --target-python-version 3.14 --use-annotated --field-constraints --strict-types str int bool --strict-refs --schema-version-mode strict --use-double-quotes --disable-timestamp --formatters ruff-check ruff-format; cmp "$temporary" src/runtime_promptgen/generated/slice_manifest.py
+
+test:
+    uv run --group test pytest tests -q
+
+quality:
+    uv run --group test ruff check src tests
+    uv run --group test ruff format --check src tests
+
+bundle:
+    uv build --wheel --out-dir dist --clear

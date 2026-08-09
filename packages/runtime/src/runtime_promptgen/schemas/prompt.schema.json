@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fatb4f/runtime/schemas/runtime.prompt.v0.json",
+  "title": "Runtime Prompt",
+  "description": "Binds one validated handoff to one validated executable slice.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "sources",
+    "handoff",
+    "slice",
+    "control"
+  ],
+  "properties": {
+    "schema": {
+      "const": "runtime.prompt.v0"
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handoff",
+        "slice"
+      ],
+      "properties": {
+        "handoff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionID",
+            "path",
+            "sha256"
+          ],
+          "properties": {
+            "sessionID": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$"
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "slice": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository",
+            "issue",
+            "url",
+            "updatedAt",
+            "bodySha256"
+          ],
+          "properties": {
+            "repository": {
+              "$ref": "#/$defs/repository"
+            },
+            "issue": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "bodySha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        }
+      }
+    },
+    "handoff": {
+      "$ref": "https://github.com/fatb4f/codex-handoff/schemas/codex.handoff.v0.json"
+    },
+    "slice": {
+      "$ref": "https://github.com/fatb4f/runtime/schemas/runtime.slice.v0.json"
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executeOnlyDeclaredSlice",
+        "respectMutationBoundaries",
+        "resolveMutationTargetsBeforeEachWrite",
+        "runDeclaredValidation",
+        "treatHandoffAsPriorSessionEvidence",
+        "doNotMutateGitHubIssues",
+        "produceHandoffBeforeContinuing"
+      ],
+      "properties": {
+        "executeOnlyDeclaredSlice": {
+          "const": true
+        },
+        "respectMutationBoundaries": {
+          "const": true
+        },
+        "resolveMutationTargetsBeforeEachWrite": {
+          "const": true
+        },
+        "runDeclaredValidation": {
+          "const": true
+        },
+        "treatHandoffAsPriorSessionEvidence": {
+          "const": true
+        },
+        "doNotMutateGitHubIssues": {
+          "const": true
+        },
+        "produceHandoffBeforeContinuing": {
+          "const": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "repository": {
+      "type": "string",
+      "pattern": "^[^/\\s]+/[^/\\s]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

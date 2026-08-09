@@ -1,0 +1,341 @@
+from __future__ import annotations
+
+import argparse
+import base64
+import binascii
+import csv
+import email
+import hashlib
+import io
+import json
+import os
+import subprocess
+import sys
+import tarfile
+import tempfile
+import tomllib
+import venv
+import zipfile
+from email.policy import default
+from pathlib import Path, PurePosixPath
+from typing import Never
+
+from packaging.metadata import Metadata
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.tags import parse_tag
+from packaging.utils import canonicalize_name, parse_sdist_filename, parse_wheel_filename
+from packaging.version import Version
+
+
+def fail(message: str) -> Never:
+    raise SystemExit(message)
+
+
+def run(*args: str, env: dict[str, str] | None = None) -> None:
+    result = subprocess.run(args, check=False, text=True, capture_output=True, env=env)
+    if result.returncode:
+        print(result.stdout + result.stderr, file=sys.stderr, end="")
+        fail(f"command failed: {' '.join(args)}")
+
+
+def one_header(message: email.message.Message, name: str) -> str:
+    values = message.get_all(name, [])
+    if len(values) != 1 or not values[0].strip():
+        fail(f"metadata must contain exactly one non-empty {name} header")
+    return values[0].strip()
+
+
+def parse_message(content: bytes, source: str) -> email.message.Message:
+    message = email.message_from_bytes(content, policy=default)
+    if message.defects:
+        fail(f"{source} contains malformed headers")
+    return message
+
+
+def parse_metadata(content: bytes, source: str) -> Metadata:
+    try:
+        return Metadata.from_email(content, validate=True)
+    except Exception as error:
+        fail(f"{source} is not valid core metadata: {error}")
+
+
+def wheel_record_valid(archive: zipfile.ZipFile, record_path: str) -> None:
+    try:
+        rows = list(csv.reader(io.StringIO(archive.read(record_path).decode("utf-8"))))
+    except (UnicodeDecodeError, csv.Error) as error:
+        fail(f"wheel RECORD is malformed: {error}")
+    if not rows or any(len(row) != 3 for row in rows):
+        fail("wheel RECORD must contain three-column rows")
+    records = {row[0]: (row[1], row[2]) for row in rows}
+    archive_files = {name for name in archive.namelist() if not name.endswith("/")}
+    if len(records) != len(rows) or set(records) != archive_files:
+        fail("wheel RECORD paths must exactly match wheel contents")
+
+    for path, (encoded_hash, encoded_size) in records.items():
+        if path == record_path:
+            if encoded_hash or encoded_size:
+                fail("wheel RECORD row must omit its own hash and size")
+            continue
+        algorithm, separator, digest = encoded_hash.partition("=")
+        if not separator or algorithm.lower() in {"md5", "sha1"}:
+            fail(f"wheel RECORD has an invalid hash for {path}")
+        try:
+            expected_length = hashlib.new(algorithm).digest_size
+            decoded = base64.urlsafe_b64decode(digest + "=" * (-len(digest) % 4))
+        except (ValueError, TypeError, binascii.Error) as error:
+            fail(f"wheel RECORD has an invalid hash for {path}: {error}")
+        if len(decoded) != expected_length:
+            fail(f"wheel RECORD has an invalid hash length for {path}")
+        if decoded != hashlib.new(algorithm, archive.read(path)).digest():
+            fail(f"wheel RECORD hash does not match {path}")
+        if not encoded_size.isdecimal() or int(encoded_size) != archive.getinfo(path).file_size:
+            fail(f"wheel RECORD has an invalid size for {path}")
+
+
+def wheel_metadata(wheel: Path, import_name: str) -> tuple[str, Version, dict[str, bool]]:
+    try:
+        filename_name, filename_version, _, filename_tags = parse_wheel_filename(wheel.name)
+    except ValueError as error:
+        fail(f"wheel filename does not parse: {error}")
+
+    try:
+        archive_context = zipfile.ZipFile(wheel)
+    except (OSError, zipfile.BadZipFile) as error:
+        fail(f"wheel is not a readable ZIP archive: {error}")
+    with archive_context as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)):
+            fail("wheel contains duplicate paths")
+        metadata_files = [name for name in names if name.endswith(".dist-info/METADATA")]
+        wheel_files = [name for name in names if name.endswith(".dist-info/WHEEL")]
+        record_files = [name for name in names if name.endswith(".dist-info/RECORD")]
+        if not (len(metadata_files) == len(wheel_files) == len(record_files) == 1):
+            fail("wheel must contain exactly one METADATA, WHEEL, and RECORD file")
+        dist_info_directories = {
+            str(Path(path).parent) for path in [metadata_files[0], wheel_files[0], record_files[0]]
+        }
+        if len(dist_info_directories) != 1:
+            fail("wheel metadata files must share one dist-info directory")
+
+        metadata = parse_metadata(archive.read(metadata_files[0]), "wheel METADATA")
+        name = metadata.name
+        metadata_version = metadata.version
+        if canonicalize_name(name) != filename_name or metadata_version != filename_version:
+            fail("wheel filename and METADATA Name/Version disagree")
+
+        wheel_headers = parse_message(archive.read(wheel_files[0]), "wheel WHEEL")
+        wheel_version = one_header(wheel_headers, "Wheel-Version")
+        if wheel_version.split(".", 1)[0] != "1":
+            fail("wheel has an unsupported Wheel-Version")
+        if one_header(wheel_headers, "Root-Is-Purelib").lower() not in {"true", "false"}:
+            fail("wheel Root-Is-Purelib must be true or false")
+        tag_headers = wheel_headers.get_all("Tag", [])
+        if not tag_headers:
+            fail("wheel WHEEL is missing Tag headers")
+        try:
+            header_tags = {tag for value in tag_headers for tag in parse_tag(value)}
+        except ValueError as error:
+            fail(f"wheel WHEEL has an invalid Tag: {error}")
+        if header_tags != set(filename_tags):
+            fail("wheel filename and WHEEL Tag headers disagree")
+
+        wheel_record_valid(archive, record_files[0])
+        package_init = f"{import_name}/__init__.py"
+        typed_marker = f"{import_name}/py.typed"
+        if package_init not in names:
+            fail(f"wheel is missing {package_init}")
+        if typed_marker not in names:
+            fail(f"wheel is missing {typed_marker}")
+
+    return (
+        name,
+        filename_version,
+        {
+            "wheel.filename-parses": True,
+            "wheel.metadata-valid": True,
+            "wheel.wheel-header-valid": True,
+            "wheel.record-valid": True,
+            "wheel.contains-import-package": True,
+            "wheel.contains-py-typed": True,
+        },
+    )
+
+
+def sdist_member(archive: tarfile.TarFile, path: str) -> tarfile.TarInfo:
+    members = [member for member in archive.getmembers() if member.isfile() and member.name == path]
+    if len(members) != 1:
+        fail(f"sdist must contain exactly one {path}")
+    return members[0]
+
+
+def sdist_root_valid(archive: tarfile.TarFile, expected_root: str) -> None:
+    for member in archive.getmembers():
+        path = PurePosixPath(member.name)
+        if (
+            path.is_absolute()
+            or ".." in path.parts
+            or not path.parts
+            or path.parts[0] != expected_root
+        ):
+            fail("sdist contents must be rooted at the sdist filename")
+
+
+def sdist_build_system_valid(content: bytes) -> None:
+    try:
+        document = tomllib.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
+        fail(f"sdist pyproject.toml is invalid: {error}")
+    build_system = document.get("build-system")
+    if not isinstance(build_system, dict):
+        fail("sdist pyproject.toml is missing [build-system]")
+    requires = build_system.get("requires")
+    if (
+        not isinstance(requires, list)
+        or not requires
+        or not all(isinstance(item, str) for item in requires)
+    ):
+        fail("sdist build-system.requires must be a non-empty string array")
+    try:
+        for requirement in requires:
+            Requirement(requirement)
+    except InvalidRequirement as error:
+        fail(f"sdist build-system.requires contains an invalid requirement: {error}")
+
+
+def inspect_artifacts(dist: Path, import_name: str) -> tuple[Path, str, dict[str, bool]]:
+    wheels = list(dist.glob("*.whl"))
+    sdists = list(dist.glob("*.tar.gz"))
+    if len(wheels) != 1 or len(sdists) != 1:
+        fail("dist must contain exactly one wheel and one sdist")
+    wheel = wheels[0]
+    wheel_name, wheel_version, assertions = wheel_metadata(wheel, import_name)
+    sdist = sdists[0]
+    try:
+        sdist_name, sdist_version = parse_sdist_filename(sdist.name)
+    except ValueError as error:
+        fail(f"sdist filename does not parse: {error}")
+    if sdist_name != canonicalize_name(wheel_name) or sdist_version != wheel_version:
+        fail("sdist filename Name/Version does not match the wheel")
+
+    try:
+        archive_context = tarfile.open(sdist)
+    except (OSError, tarfile.TarError) as error:
+        fail(f"sdist is not a readable tar archive: {error}")
+    with archive_context as archive:
+        expected_root = sdist.name.removesuffix(".tar.gz")
+        sdist_root_valid(archive, expected_root)
+        package_info = sdist_member(archive, f"{expected_root}/PKG-INFO")
+        pyproject = sdist_member(archive, f"{expected_root}/pyproject.toml")
+        extracted = archive.extractfile(package_info)
+        if extracted is None:
+            fail("cannot read sdist PKG-INFO")
+        metadata = parse_metadata(extracted.read(), "sdist PKG-INFO")
+        if Version(metadata.metadata_version) < Version("2.2"):
+            fail("sdist PKG-INFO must use Metadata-Version 2.2 or later")
+        package_name = metadata.name
+        package_version = metadata.version
+        if canonicalize_name(package_name) != sdist_name or package_version != sdist_version:
+            fail("sdist filename and PKG-INFO Name/Version disagree")
+        extracted = archive.extractfile(pyproject)
+        if extracted is None:
+            fail("cannot read sdist pyproject.toml")
+        sdist_build_system_valid(extracted.read())
+
+    assertions.update(
+        {
+            "sdist.filename-parses": True,
+            "sdist.name-version-match-wheel": True,
+            "sdist.structure-valid": True,
+            "sdist.pyproject-build-system-valid": True,
+            "sdist.pkg-info-valid": True,
+        }
+    )
+    return wheel, str(wheel_version), assertions
+
+
+IMPORT_CHECK = """
+import importlib
+import sysconfig
+from pathlib import Path
+
+module = importlib.import_module(__import__("sys").argv[1])
+location = getattr(module, "__file__", None)
+site_packages = [
+    Path(path).resolve()
+    for key in ("purelib", "platlib")
+    if (path := sysconfig.get_path(key))
+]
+if location is None or not any(
+    Path(location).resolve().is_relative_to(path) for path in site_packages
+):
+    raise SystemExit("import did not resolve from the candidate environment site-packages")
+"""
+
+
+def check_install(wheel: Path, import_name: str, online: bool) -> dict[str, bool]:
+    with tempfile.TemporaryDirectory() as directory:
+        temporary = Path(directory)
+        environment = temporary / "venv"
+        venv.create(environment, with_pip=True)
+        python = environment / "bin" / "python"
+        if online:
+            run("uv", "pip", "install", "--python", str(python), str(wheel))
+        else:
+            runtime_environment = os.environ | {
+                "UV_OFFLINE": "1",
+                "UV_PROJECT_ENVIRONMENT": str(environment),
+            }
+            run(
+                "uv",
+                "sync",
+                "--locked",
+                "--offline",
+                "--no-default-groups",
+                "--no-install-project",
+                env=runtime_environment,
+            )
+            run(
+                "uv",
+                "pip",
+                "install",
+                "--python",
+                str(python),
+                "--offline",
+                "--no-index",
+                "--no-deps",
+                str(wheel),
+            )
+        run(
+            str(python),
+            "-c",
+            IMPORT_CHECK,
+            import_name,
+        )
+    if online:
+        return {"candidate.online-importable": True}
+    return {"candidate.installs-without-index": True, "candidate.importable": True}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--online", action="store_true")
+    parser.add_argument("--report-json", metavar="DESTINATION")
+    parser.add_argument("dist", type=Path)
+    parser.add_argument("import_name")
+    args = parser.parse_args()
+
+    wheel, version, assertions = inspect_artifacts(args.dist, args.import_name)
+    assertions.update(check_install(wheel, args.import_name, args.online))
+    report = {"probe": "artifact-structure", "assertions": assertions, "version": version}
+    if args.report_json:
+        encoded = json.dumps(report, sort_keys=True)
+        if args.report_json == "-":
+            print(encoded)
+        else:
+            Path(args.report_json).write_text(encoded + "\n")
+    else:
+        print(version)
+
+
+if __name__ == "__main__":
+    main()
