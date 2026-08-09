@@ -1,9 +1,0 @@
-from __future__ import annotations
-
-from pathlib import Path
-
-
-def test_license_file_matches_declared_expression() -> None:
-    license_text = (Path(__file__).parents[1] / "LICENSE").read_text()
-
-    assert license_text.startswith("MIT License")

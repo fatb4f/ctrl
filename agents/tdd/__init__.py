@@ -1,1 +1,0 @@
-"""TDD agent project namespace."""
