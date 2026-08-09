@@ -30,6 +30,7 @@ addopts = ["-ra", "--strict-config", "--strict-markers"]
 [tool.ruff]
 line-length = 100
 target-version = "py314"
+extend-exclude = ["src/qualification_workflow/generated"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

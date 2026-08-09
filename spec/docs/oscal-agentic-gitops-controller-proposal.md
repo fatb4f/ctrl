@@ -1,5 +1,8 @@
 # OSCAL Agentic GitOps Controller
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../README.md) and root [documentation map](../../docs/README.md).
+
 ## Governed-project and controller profile proposal
 
 | Field | Value |

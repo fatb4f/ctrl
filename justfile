@@ -26,10 +26,10 @@ fix:
 
 test *args:
     uv run --frozen --no-sync pytest tests {{args}}
-    uv run --frozen --no-sync python scripts/component_check.py qualification-workflow ppf runtime-promptgen tdd-agent-skills openai-sdk-feedback
+    uv run --frozen --no-sync python scripts/component_check.py qualification-workflow ppf runtime-promptgen tdd-agent-skills
 
 cue-check:
-    cue vet -c=false ./spec/core ./spec/repository ./spec/qualification ./spec/controller ./spec/examples/... ./spec/profiles/... ./spec/tests/positive ./agents/tdd/contracts ./agents/tdd/fixtures/...
+    cue vet -c=false ./spec/core ./spec/repository ./spec/qualification ./spec/qualification/generate ./spec/controller ./spec/examples/... ./spec/profiles/... ./spec/tests/positive ./agents/tdd/contracts ./agents/tdd/fixtures/...
     cue export ./spec/qualification/workflow/examples/normalized_sequence.cue -e normalizedPlan >/dev/null
     @if cue vet -c=false ./spec/tests/negative/incomplete-promotion.cue >/dev/null 2>&1; then echo "negative CUE fixture unexpectedly passed" >&2; exit 1; else echo "negative CUE fixture rejected as expected"; fi
 

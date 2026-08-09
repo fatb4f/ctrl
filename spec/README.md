@@ -1,33 +1,43 @@
 # Qualification semantic authority
 
 `spec/` is the sole physical authority for qualification semantics in `ctrl`.
-Canonical CUE decides applicability, reference resolution, cross-record
-relations, verdicts, and promotion predicates. Generated JSON Schema and
-Pydantic transports carry representable structure only.
+Canonical CUE owns structural admissibility, applicability, reference closure,
+claim/result consistency, verdicts, and the S0 promotion boundary. Generated
+JSON Schema and Pydantic transports preserve structure only.
 
 The package dependency direction is:
 
 ```text
-core          → []
-repository    → core
-qualification → core, repository
-controller    → core, repository, qualification
+core          -> []
+repository    -> core
+qualification -> core, repository
+controller    -> core, repository, qualification
 ```
 
-Qualification therefore cannot import controller. The canonical episode is:
+The transport projection is one-way:
 
 ```text
-Observation
-    → ClaimAdmission
-    → ClaimStatus
-    → QualificationResult
-    → PromotionAuthorization
+structural CUE transports
+    -> generation-only bundle
+    -> JSON Schema
+    -> Pydantic transports
 ```
 
-Claim status is closed to `SATISFIED`, `VIOLATED`, or `UNKNOWN`; result verdict
-is closed to `QUALIFIED`, `INCONCLUSIVE`, or `REJECTED`. Promotion requires a
-complete `QUALIFIED` result. OSCAL, Gemara, and in-toto are obligation-source or
-projection mechanisms, not alternative qualification authorities.
+Semantic policy and result definitions refine the same structural transports.
+An included `UNKNOWN` claim is unresolved local state. A `QUALIFIED` result is
+complete and contains only satisfied claims; an `INCONCLUSIVE` result is
+incomplete and contains unresolved claims; a `REJECTED` result contains a
+violation and may be locally complete or incomplete. No S0 result proves that
+all obligations from a separate policy are covered.
 
-Run root `just cue-check` to vet the positive packages and prove that the
-incomplete-promotion mutation is rejected.
+`#PromotionAuthorization` is mechanically labeled
+`promotion-authorization/s0` and `RESULT_LOCAL`. It only marks an internally
+qualified result as eligible to enter a future promotion boundary. It does not
+authorize an external effect.
+
+OSCAL, Gemara, and in-toto remain obligation-source or projection mechanisms,
+not alternative qualification authorities. Imported proposals under
+`spec/docs/` are historical and non-normative.
+
+Run root `just cue-check`, `just generated-check`, and `just architecture-check`
+to validate the authority boundary.

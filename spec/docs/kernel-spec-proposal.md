@@ -1,5 +1,8 @@
 # Kernel Spec
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../README.md) and root [documentation map](../../docs/README.md).
+
 ## CUE lattice and OSCAL API compiler proposal
 
 | Field | Value |

@@ -1,20 +1,30 @@
+@experiment(explicitopen)
+
 // Package repository describes source-tree and generated-artifact structure.
 package repository
 
 import core "github.com/fatb4f/ctrl/spec/core"
 
-#Component: {
-	id:   core.#ComponentID
-	root: core.#NonEmptyString
-}
+#ComponentIdentityTransport: close({
+	id!:   core.#ComponentID
+	root!: core.#NonEmptyString
+})
 
-#RepositoryRevision: {
-	revision: core.#Digest
-	components: [core.#ComponentID]: #Component
-}
+#Component: #ComponentIdentityTransport
+
+#RepositoryRevisionTransport: close({
+	revision!:   core.#Digest
+	components!: {[string]: #ComponentIdentityTransport}
+})
+
+#RepositoryRevision: Revision=(#RepositoryRevisionTransport & {
+	for componentID, component in Revision.components {
+		components: (componentID): id: componentID
+	}
+})
 
 #GeneratedArtifact: {
-	artifact: core.#ArtifactCoordinate
+	artifact:            core.#ArtifactCoordinate
 	authoritativeInputs: [core.#SourceCoordinate, ...core.#SourceCoordinate]
-	role: "transport" | "projection"
+	role:                "transport" | "projection"
 }

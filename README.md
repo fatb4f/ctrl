@@ -1,6 +1,6 @@
 # ctrl
 
-Canonical federated monorepo for the qualification prototypes.
+Canonical monorepo for the qualification prototypes.
 
 The repository root is a non-package uv workspace. Components retain their own
 package metadata and public interfaces; root tooling supplies one lock and one
@@ -18,7 +18,7 @@ packages/ppf/                   PPF distribution and python-ppf owner
 packages/runtime/               runtime-promptgen distribution
 packages/qualification-workflow shared generic workflow distribution
 agents/tdd/                     TDD agent skills and compatibility imports
-integrations/openai/            OpenAI SDK feedback component
+integrations/openai/            OpenAI integration documentation and research
 ```
 
 ## Development

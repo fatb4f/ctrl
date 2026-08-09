@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
+import tempfile
 import tomllib
 from pathlib import Path
+
+from jsonschema import Draft202012Validator
+from jsonschema.protocols import Validator
+from pydantic import BaseModel, ValidationError
+from qualification_workflow.generated import (
+    QualificationPolicyTransport,
+    QualificationResultTransport,
+)
 
 ROOT = Path(__file__).parents[1]
 LAYERS = ("core", "repository", "qualification", "controller")
@@ -51,6 +61,136 @@ def dependency_name(requirement: object) -> str:
 
 def forbidden_cue_imports(layer: str, content: str) -> set[str]:
     return set(IMPORT_LAYER.findall(content)) - ALLOWED_IMPORTS[layer]
+
+
+def schema_validator(definition: str) -> Validator:
+    schema = json.loads(
+        (ROOT / "spec/generated/qualification.schema.json").read_text(encoding="utf-8")
+    )
+    projected = {
+        "$schema": schema["$schema"],
+        "$defs": schema["$defs"],
+        "$ref": f"#/$defs/{definition}",
+    }
+    Draft202012Validator.check_schema(projected)
+    return Draft202012Validator(projected)
+
+
+def pydantic_accepts(model: type[BaseModel], value: dict) -> bool:
+    try:
+        model.model_validate(value, strict=True)
+    except ValidationError:
+        return False
+    return True
+
+
+def cue_accepts(definition: str, value: dict) -> bool:
+    with tempfile.TemporaryDirectory(prefix="qualification-cue-fixture-") as directory:
+        fixture = Path(directory) / "fixture.json"
+        fixture.write_text(json.dumps(value), encoding="utf-8")
+        completed = subprocess.run(
+            [
+                "cue",
+                "vet",
+                "-c=true",
+                "-d",
+                f"#{definition}",
+                "./spec/qualification",
+                str(fixture),
+            ],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    return completed.returncode == 0
+
+
+def require_boundary(
+    name: str,
+    value: dict,
+    *,
+    schema: Validator,
+    model: type[BaseModel],
+    structural_definition: str,
+    semantic_definition: str,
+    expected: tuple[bool, bool, bool, bool],
+) -> None:
+    actual = (
+        schema.is_valid(value),
+        pydantic_accepts(model, value),
+        cue_accepts(structural_definition, value),
+        cue_accepts(semantic_definition, value),
+    )
+    if actual != expected:
+        fail(f"qualification boundary mismatch for {name}: expected {expected}, got {actual}")
+
+
+def qualification_boundaries() -> None:
+    fixtures = json.loads(
+        (ROOT / "spec/tests/qualification-transport-fixtures.json").read_text(encoding="utf-8")
+    )
+    result_schema = schema_validator("QualificationResultTransport")
+    result_cases = {
+        "validQualified": (True, True, True, True),
+        "missingRepository": (False, False, False, False),
+        "stringComplete": (False, False, False, False),
+        "unknownField": (False, False, False, False),
+        "unknownQualified": (True, True, True, False),
+        "rejectedSatisfiedViolation": (True, True, True, False),
+        "validRejectedComplete": (True, True, True, True),
+        "validRejectedIncomplete": (True, True, True, True),
+        "inconclusiveWithoutUnknown": (True, True, True, False),
+    }
+    for name, expected in result_cases.items():
+        require_boundary(
+            name,
+            fixtures["results"][name],
+            schema=result_schema,
+            model=QualificationResultTransport,
+            structural_definition="QualificationResultTransport",
+            semantic_definition="QualificationResult",
+            expected=expected,
+        )
+
+    policy_schema = schema_validator("QualificationPolicyTransport")
+    policy_cases = {
+        "valid": (True, True, True, True),
+        "unknownObligationRef": (True, True, True, False),
+    }
+    for name, expected in policy_cases.items():
+        require_boundary(
+            f"policy.{name}",
+            fixtures["policies"][name],
+            schema=policy_schema,
+            model=QualificationPolicyTransport,
+            structural_definition="QualificationPolicyTransport",
+            semantic_definition="QualificationPolicy",
+            expected=expected,
+        )
+
+
+def generated_provenance() -> None:
+    provenance = ROOT / "spec/generated/qualification.provenance.json"
+    try:
+        generated = json.loads(provenance.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        fail(f"cannot read generated transport provenance: {error}")
+    if generated.get("role") != "transport-only":
+        fail("generated qualification transports must be transport-only")
+    if not generated.get("inputs") or not generated.get("outputs") or not generated.get("tools"):
+        fail("generated qualification transports must record inputs, outputs, and tools")
+    recorded_paths = {item["path"] for item in generated["outputs"]}
+    if provenance.relative_to(ROOT).as_posix() in recorded_paths:
+        fail("generated provenance must not include its own digest")
+    for section in ("inputs", "outputs"):
+        for item in generated[section]:
+            path = ROOT / item["path"]
+            if not path.is_file():
+                fail(f"generated provenance path does not exist: {item['path']}")
+            actual = "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+            if item["digest"] != actual:
+                fail(f"generated provenance digest mismatch: {item['path']}")
 
 
 def main() -> None:
@@ -109,13 +249,8 @@ def main() -> None:
     if locks != [ROOT / "uv.lock"]:
         fail(f"exactly one root uv.lock is required: {locks}")
 
-    provenance = ROOT / "spec/generated/qualification.provenance.json"
-    try:
-        generated = json.loads(provenance.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        fail(f"cannot read generated transport provenance: {error}")
-    if not generated.get("authoritativeInputs") or generated.get("role") != "transport-only":
-        fail("generated qualification transports must identify authoritative inputs")
+    generated_provenance()
+    qualification_boundaries()
 
     print(
         json.dumps(

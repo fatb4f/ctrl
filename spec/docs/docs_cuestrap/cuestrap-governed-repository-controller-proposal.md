@@ -1,5 +1,8 @@
 # Proposal migrated to Kernel Spec
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../../README.md) and root [documentation map](../../../docs/README.md).
+
 The former **Cuestrap Governed Repository Controller** proposal has been extracted from CUEstrap.
 
 CUEstrap retains its original scope as a narrow laboratory for aligning and qualifying idiomatic CUE patterns against pinned upstream `cue-lang/cue` authority.

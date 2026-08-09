@@ -224,18 +224,17 @@ The following terms are explanatory crosswalks, not new contract types:
 
 ## Project ownership map
 
-The canonical qualification architecture is currently realized across several
-project repositories. Repository location does not alter semantic authority.
-Canonical types should have one physical authority location rather than
-independent definitions in multiple repositories.
+The canonical qualification architecture is realized through logical
+components in this monorepo. Component location does not alter semantic
+authority; canonical types have one physical authority under `spec/`.
 
 | Surface | Current repository | Intended ownership |
 |---|---|---|
-| Normative semantic contracts | `kernel-spec` / `sdk-feedback` | Qualification specification |
-| PPF and evidence machinery | `ppf` | Qualification package |
-| Runtime and state projection | `runtime` | Runtime package |
-| TDD specialization | `tdd-seed` | Agent specialization |
-| App Server qualification | `sdk-feedback` | Integration and evaluation package |
+| Normative semantic contracts | `spec/` | Qualification specification |
+| PPF and evidence machinery | `packages/ppf/` | Qualification package |
+| Runtime and state projection | `packages/runtime/` | Runtime package |
+| TDD specialization | `agents/tdd/` | Agent specialization |
+| OpenAI-specific research | `integrations/openai/` | Non-package integration area |
 | Idiomatic CUE patterns | `cuestrap` | External reusable pattern library |
 
 CUEstrap is a design and implementation dependency. It is not a normative

@@ -1,5 +1,8 @@
 # Proposal migration manifest
 
+> **Historical imported record — non-normative.** See the current
+> [qualification authority](../README.md) and root [documentation map](../../docs/README.md).
+
 ## Source
 
 - Repository: `fatb4f/cuestrap`

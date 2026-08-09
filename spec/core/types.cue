@@ -1,3 +1,5 @@
+@experiment(explicitopen)
+
 // Package core owns qualification-neutral identities and coordinates.
 package core
 

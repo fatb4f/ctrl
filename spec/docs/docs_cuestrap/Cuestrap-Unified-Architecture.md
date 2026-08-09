@@ -1,6 +1,9 @@
 
 # Cuestrap: Single Architecture Digest
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../../README.md) and root [documentation map](../../../docs/README.md).
+
 ## 1. Core thesis
 
 **Cuestrap is an OSCAL-native, CUE-executable, Git-backed, proof-carrying controller for governed repository state.**

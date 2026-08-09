@@ -1,68 +1,230 @@
 {
-  "$comment": "Transport structure only. Canonical CUE evaluates applicability, references, relations, verdicts, and promotion predicates.",
   "$defs": {
-    "claimAdmission": {
+    "ApplicabilityTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "obligationRefs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligationRefs"
+      ],
+      "type": "object"
+    },
+    "ClaimAdmissionTransport": {
       "additionalProperties": false,
       "properties": {
         "claimID": {
-          "type": "string"
+          "$ref": "#/$defs/ClaimID"
         },
         "observationID": {
-          "type": "string"
+          "$ref": "#/$defs/ObservationID"
         },
         "reason": {
-          "type": "string"
+          "$ref": "#/$defs/NonEmptyString"
         },
         "status": {
-          "enum": [
-            "SATISFIED",
-            "VIOLATED",
-            "UNKNOWN"
-          ]
+          "$ref": "#/$defs/ClaimStatus"
         }
       },
       "required": [
         "claimID",
         "observationID",
-        "status",
-        "reason"
+        "reason",
+        "status"
       ],
       "type": "object"
-    }
-  },
-  "$id": "https://github.com/fatb4f/ctrl/spec/generated/qualification.schema.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "additionalProperties": false,
-  "properties": {
-    "claims": {
-      "additionalProperties": {
-        "$ref": "#/$defs/claimAdmission"
+    },
+    "ClaimID": {
+      "$ref": "#/$defs/ID"
+    },
+    "ClaimStatus": {
+      "enum": [
+        "SATISFIED",
+        "VIOLATED",
+        "UNKNOWN"
+      ]
+    },
+    "ComponentID": {
+      "$ref": "#/$defs/ID"
+    },
+    "ComponentIdentityTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/ComponentID"
+        },
+        "root": {
+          "$ref": "#/$defs/NonEmptyString"
+        }
       },
+      "required": [
+        "id",
+        "root"
+      ],
       "type": "object"
     },
-    "complete": {
-      "type": "boolean"
+    "Digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "type": "string"
     },
-    "verdict": {
+    "EvidenceRequirementTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/NonEmptyString"
+        },
+        "id": {
+          "$ref": "#/$defs/ID"
+        }
+      },
+      "required": [
+        "description",
+        "id"
+      ],
+      "type": "object"
+    },
+    "ID": {
+      "$ref": "#/$defs/NonEmptyString",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+      "type": "string"
+    },
+    "NonEmptyString": {
+      "not": {
+        "const": ""
+      },
+      "type": "string"
+    },
+    "ObligationTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "evidenceRequirementRefs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/$defs/ClaimID"
+        }
+      },
+      "required": [
+        "evidenceRequirementRefs",
+        "id"
+      ],
+      "type": "object"
+    },
+    "ObservationID": {
+      "$ref": "#/$defs/ID"
+    },
+    "QualificationPolicyTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability": {
+          "$ref": "#/$defs/ApplicabilityTransport"
+        },
+        "evidenceRequirements": {
+          "additionalProperties": {
+            "$ref": "#/$defs/EvidenceRequirementTransport"
+          },
+          "type": "object"
+        },
+        "id": {
+          "$ref": "#/$defs/ID"
+        },
+        "obligations": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ObligationTransport"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "applicability",
+        "evidenceRequirements",
+        "id",
+        "obligations"
+      ],
+      "type": "object"
+    },
+    "QualificationResultTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "claims": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ClaimAdmissionTransport"
+          },
+          "type": "object"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "repository": {
+          "$ref": "#/$defs/RepositoryRevisionTransport"
+        },
+        "verdict": {
+          "$ref": "#/$defs/ResultVerdict"
+        },
+        "violations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "claims",
+        "complete",
+        "repository",
+        "verdict",
+        "violations"
+      ],
+      "type": "object"
+    },
+    "RepositoryRevisionTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ComponentIdentityTransport"
+          },
+          "type": "object"
+        },
+        "revision": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "components",
+        "revision"
+      ],
+      "type": "object"
+    },
+    "ResultVerdict": {
       "enum": [
         "QUALIFIED",
         "INCONCLUSIVE",
         "REJECTED"
       ]
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "policy": {
+      "$ref": "#/$defs/QualificationPolicyTransport"
     },
-    "violations": {
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
+    "result": {
+      "$ref": "#/$defs/QualificationResultTransport"
     }
   },
   "required": [
-    "claims",
-    "complete",
-    "verdict",
-    "violations"
+    "policy",
+    "result"
   ],
-  "title": "Qualification transport",
   "type": "object"
 }

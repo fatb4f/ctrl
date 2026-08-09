@@ -21,7 +21,7 @@ sourceImports: [
 	{
 		componentID: "runtime-promptgen"
 		source:      "fatb4f/runtime"
-		repository:  "https://github.com/fatb4f/runtime"
+		sourceKind:  "unpublished-local"
 		revision:    "e5373bf8361ed88bd0bb3226f0ce827a41b90ec7"
 		tree:        "4e09e6cf34f258ec08078aae208922f913b80d79"
 		destination: "packages/runtime"

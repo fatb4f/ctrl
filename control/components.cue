@@ -16,7 +16,7 @@ components: {
 	"tdd-agent-skills": {
 		root: "agents/tdd"
 	}
-	"openai-sdk-feedback": {
+	"openai-integration": {
 		root: "integrations/openai"
 	}
 }

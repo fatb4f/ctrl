@@ -1,0 +1,172 @@
+{
+  "results": {
+    "validQualified": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {
+          "ctrl": {
+            "id": "ctrl",
+            "root": "."
+          }
+        }
+      },
+      "claims": {
+        "semantic-authority": {
+          "claimID": "semantic-authority",
+          "observationID": "cue-vet",
+          "status": "SATISFIED",
+          "reason": "canonical CUE constraints passed"
+        }
+      },
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "missingRepository": {
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "stringComplete": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {},
+      "complete": "true",
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "unknownField": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": [],
+      "unexpected": true
+    },
+    "unknownQualified": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "pending-evidence": {
+          "claimID": "pending-evidence",
+          "observationID": "collector",
+          "status": "UNKNOWN",
+          "reason": "evidence is unresolved"
+        }
+      },
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "rejectedSatisfiedViolation": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "failed-check": {
+          "claimID": "failed-check",
+          "observationID": "check",
+          "status": "SATISFIED",
+          "reason": "the check passed"
+        }
+      },
+      "complete": true,
+      "verdict": "REJECTED",
+      "violations": ["failed-check"]
+    },
+    "validRejectedComplete": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "failed-check": {
+          "claimID": "failed-check",
+          "observationID": "check",
+          "status": "VIOLATED",
+          "reason": "the check failed"
+        }
+      },
+      "complete": true,
+      "verdict": "REJECTED",
+      "violations": ["failed-check"]
+    },
+    "validRejectedIncomplete": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "failed-check": {
+          "claimID": "failed-check",
+          "observationID": "check",
+          "status": "VIOLATED",
+          "reason": "the check failed"
+        },
+        "pending-evidence": {
+          "claimID": "pending-evidence",
+          "observationID": "collector",
+          "status": "UNKNOWN",
+          "reason": "evidence is unresolved"
+        }
+      },
+      "complete": false,
+      "verdict": "REJECTED",
+      "violations": ["failed-check"]
+    },
+    "inconclusiveWithoutUnknown": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "completed-check": {
+          "claimID": "completed-check",
+          "observationID": "check",
+          "status": "SATISFIED",
+          "reason": "the check completed"
+        }
+      },
+      "complete": false,
+      "verdict": "INCONCLUSIVE",
+      "violations": []
+    }
+  },
+  "policies": {
+    "valid": {
+      "id": "default-policy",
+      "applicability": {
+        "obligationRefs": ["semantic-authority"]
+      },
+      "evidenceRequirements": {
+        "cue-evidence": {
+          "id": "cue-evidence",
+          "description": "CUE qualification evidence"
+        }
+      },
+      "obligations": {
+        "semantic-authority": {
+          "id": "semantic-authority",
+          "evidenceRequirementRefs": ["cue-evidence"]
+        }
+      }
+    },
+    "unknownObligationRef": {
+      "id": "default-policy",
+      "applicability": {
+        "obligationRefs": ["missing-obligation"]
+      },
+      "evidenceRequirements": {},
+      "obligations": {}
+    }
+  }
+}

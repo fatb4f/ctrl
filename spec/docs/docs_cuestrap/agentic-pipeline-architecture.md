@@ -1,6 +1,9 @@
 
 # Reactive Agentic Pipeline Architecture — Normalized Digest
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../../README.md) and root [documentation map](../../../docs/README.md).
+
 ## 1. Architectural premise
 
 The target is not a general-purpose autonomous agent framework.

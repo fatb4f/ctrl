@@ -27,6 +27,7 @@ result: qualification.#QualificationResult & {
 let Result = result
 
 promotion: qualification.#PromotionAuthorization & {
+	schema: "promotion-authorization/s0"
+	scope:  "RESULT_LOCAL"
 	result: Result
-	authorized: true
 }

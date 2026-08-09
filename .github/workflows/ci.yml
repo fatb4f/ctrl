@@ -19,7 +19,7 @@ jobs:
           python-version: "3.14"
           enable-cache: true
       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-      - run: go install cuelang.org/go/cmd/cue@v0.18.0
+      - run: go install cuelang.org/go/cmd/cue@v0.18.0-0.dev.0.20260713132914-0c547ba896a5
       - run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - run: just sync
       - run: just tools-check
@@ -34,7 +34,7 @@ jobs:
           version: "0.12.0"
           python-version: "3.14"
       - uses: extractions/setup-just@e33e0265a09d6d736e2ee1e0eb685ef1de4669ff # v3.0.0
-      - run: go install cuelang.org/go/cmd/cue@v0.18.0
+      - run: go install cuelang.org/go/cmd/cue@v0.18.0-0.dev.0.20260713132914-0c547ba896a5
       - run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
       - run: just sync
       - run: just tools-check

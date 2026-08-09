@@ -299,7 +299,12 @@ version = "0.1.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
+codegen = [
+    { name = "datamodel-code-generator" },
+]
 dev = [
+    { name = "datamodel-code-generator" },
+    { name = "jsonschema" },
     { name = "packaging" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -312,6 +317,7 @@ quality = [
     { name = "ty" },
 ]
 test = [
+    { name = "jsonschema" },
     { name = "packaging" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -321,7 +327,10 @@ test = [
 [package.metadata]
 
 [package.metadata.requires-dev]
+codegen = [{ name = "datamodel-code-generator", specifier = "==0.71.0" }]
 dev = [
+    { name = "datamodel-code-generator", specifier = "==0.71.0" },
+    { name = "jsonschema", specifier = ">=4.25,<5" },
     { name = "packaging", specifier = ">=25" },
     { name = "pytest", specifier = ">=9" },
     { name = "pytest-cov", specifier = ">=7" },
@@ -334,6 +343,7 @@ quality = [
     { name = "ty", specifier = ">=0.0.1a24" },
 ]
 test = [
+    { name = "jsonschema", specifier = ">=4.25,<5" },
     { name = "packaging", specifier = ">=25" },
     { name = "pytest", specifier = ">=9" },
     { name = "pytest-cov", specifier = ">=7" },

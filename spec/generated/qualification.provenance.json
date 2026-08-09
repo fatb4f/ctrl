@@ -1,14 +1,87 @@
 {
-  "artifactPaths": [
-    "spec/generated/qualification.schema.json",
-    "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py"
-  ],
-  "authoritativeInputs": [
+  "inputs": [
     {
-      "digest": "sha256:37d2d6baed6f736118410f7d24ea378f84965d3732ec2b084651a4662cffdfb0",
-      "path": "spec/qualification/kernel.cue"
+      "digest": "sha256:ae82c6d80786ab6a805e35a56a2f6547eb1686f0303dcce090c373b6a4f73030",
+      "path": "cue.mod/module.cue"
+    },
+    {
+      "digest": "sha256:513a786e9e21433876a024edab27935048b6fb21d6dd2e26ad8f281881b5c273",
+      "path": "spec/core/types.cue"
+    },
+    {
+      "digest": "sha256:0fe6a327ccaa25684dd9e3c7adac584a32fe13a2821f800aac4734ff704edd6d",
+      "path": "spec/qualification/generate/bundle.cue"
+    },
+    {
+      "digest": "sha256:fc6e0401f424bf54d44642d0b8d6bc2724a333932a799c1c92043eefb7a956e4",
+      "path": "spec/qualification/policy.cue"
+    },
+    {
+      "digest": "sha256:9e56303d0d204ff12790e55730661151237c2584eda5c29a401e2e242d653f9e",
+      "path": "spec/qualification/result.cue"
+    },
+    {
+      "digest": "sha256:d33c47569c07803bf723e0a0fa89af06b859279fd45b4edb313a018f1617a636",
+      "path": "spec/qualification/transport.cue"
+    },
+    {
+      "digest": "sha256:d19920a263cb776dd57413b4bc892485072a0cc36a457f6bc5383c5e7a2ddc45",
+      "path": "spec/repository/contracts.cue"
     }
   ],
-  "generator": "scripts/generate_qualification_transports.py",
-  "role": "transport-only"
+  "outputs": [
+    {
+      "digest": "sha256:d32661d84afce9457fe1caa99b5a4a86967a9b3c735e789c4973b5a72cdbaed8",
+      "path": "spec/generated/qualification.schema.json"
+    },
+    {
+      "digest": "sha256:c24ca8497b082f1dcd3965250ded6194262d21a5c71196d36cb0239da8a76e7f",
+      "path": "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py"
+    }
+  ],
+  "role": "transport-only",
+  "tools": {
+    "cue": {
+      "argv": [
+        "cue",
+        "def",
+        "./spec/qualification/generate",
+        "--out",
+        "jsonschema",
+        "-e",
+        "#QualificationTransportBundle"
+      ],
+      "version": "v0.18.0-0.dev.0.20260713132914-0c547ba896a5"
+    },
+    "datamodel-code-generator": {
+      "argv": [
+        "datamodel-codegen",
+        "--input",
+        "spec/generated/qualification.schema.json",
+        "--input-file-type",
+        "jsonschema",
+        "--output",
+        "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py",
+        "--output-model-type",
+        "pydantic_v2.BaseModel",
+        "--target-python-version",
+        "3.14",
+        "--strict-nullable",
+        "--use-standard-collections",
+        "--use-union-operator",
+        "--use-default-kwarg",
+        "--enum-field-as-literal",
+        "all",
+        "--collapse-root-models",
+        "--extra-fields",
+        "forbid",
+        "--disable-timestamp",
+        "--formatters",
+        "builtin",
+        "--class-name",
+        "QualificationTransportBundle"
+      ],
+      "version": "0.71.0"
+    }
+  }
 }

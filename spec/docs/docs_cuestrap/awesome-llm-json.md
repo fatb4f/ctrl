@@ -1,6 +1,9 @@
 
 # Review of `awesome-llm-json`
 
+> **Historical imported research — non-normative.** See the current
+> [qualification authority](../../README.md) and root [documentation map](../../../docs/README.md).
+
 ## Verdict
 
 The repository is a **good 2024 ecosystem snapshot**, but no longer a reliable current selection guide. Its latest commit was February 18, 2025, and that change only repaired LangChain links. The hosted-model and local-model sections still describe mostly 2023–2024 model generations.

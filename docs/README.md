@@ -19,6 +19,7 @@ supporting research and integration notes
 ```
 
 - `qualification-p0-plan/` is the canonical P0 plan.
+- `s0-contract-closure-plan.md` is the approved simplified S0 closure plan.
 - `adr/0001-…` is the accepted application/runtime boundary decision.
 - `assurance-runtime-v0.md` is the accepted successor runtime specification.
 - `research/` and `reference-lineage.md` retain provenance but are

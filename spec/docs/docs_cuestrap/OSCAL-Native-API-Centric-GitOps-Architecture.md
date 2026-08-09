@@ -1,6 +1,9 @@
 
 # OSCAL-Native API-Centric GitOps Architecture
 
+> **Historical imported proposal — non-normative.** See the current
+> [qualification authority](../../README.md) and root [documentation map](../../../docs/README.md).
+
 ## Core Thesis
 
 Promote **OSCAL as the authoritative data model**, not merely as a document interchange format.
