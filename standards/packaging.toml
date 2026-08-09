@@ -1,0 +1,40 @@
+[[probe]]
+id = "metadata"
+phase = "locked"
+argv = [
+  "uv", "run", "--isolated", "--locked", "--no-default-groups", "--group", "test",
+  "python", "scripts/metadata_check.py",
+]
+
+[[standard]]
+id = "PEP-621"
+status = "required"
+subject = "workspace metadata"
+assertions = ["metadata.project.valid", "metadata.license.valid"]
+
+[[standard]]
+id = "PEP-639"
+status = "deferred"
+subject = "license expression and files"
+
+[[standard]]
+id = "PEP-735"
+status = "required"
+subject = "dependency groups"
+assertions = ["metadata.dependency-groups.valid"]
+
+[[standard]]
+id = "PEP-751"
+status = "deferred"
+subject = "standard lockfile export"
+
+[[standard]]
+id = "PEP-794"
+status = "deferred"
+subject = "declared import names"
+
+[[standard]]
+id = "UV-WORKSPACE"
+status = "required"
+subject = "non-package workspace root"
+assertions = ["metadata.workspace-root.valid"]

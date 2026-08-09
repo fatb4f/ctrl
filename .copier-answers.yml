@@ -1,0 +1,11 @@
+# Changes here may be overwritten by Copier.
+_commit: a3cac90
+_src_path: .
+author_email: _404@example.com
+author_name: _404
+description: Federated qualification prototype control plane.
+distribution_name: ctrl
+github_owner: fatb4f
+import_package_name: ctrl
+license: MIT
+publish_to_pypi: false

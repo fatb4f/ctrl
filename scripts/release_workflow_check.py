@@ -1,0 +1,100 @@
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from typing import Any, cast
+
+import yaml
+
+ROOT = Path(__file__).parents[1]
+FULL_COMMIT_ACTION = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
+
+
+def action_name(step: dict[str, Any]) -> str | None:
+    uses = step.get("uses")
+    if not isinstance(uses, str):
+        return None
+    return uses.partition("@")[0]
+
+
+def workflow_steps(job: object) -> list[dict[str, Any]] | None:
+    if not isinstance(job, dict):
+        return None
+    value = job.get("steps")
+    if not isinstance(value, list) or not all(isinstance(step, dict) for step in value):
+        return None
+    return cast(list[dict[str, Any]], value)
+
+
+def trusted_publication(workflow: object) -> bool:
+    if not isinstance(workflow, dict):
+        return False
+    if workflow.get("permissions") != {}:
+        return False
+    jobs = workflow.get("jobs")
+    if not isinstance(jobs, dict) or set(jobs) != {"build", "publish"}:
+        return False
+    build = jobs.get("build")
+    publish = jobs.get("publish")
+    if not isinstance(build, dict) or not isinstance(publish, dict):
+        return False
+    if any(not isinstance(job, dict) or "uses" in job for job in jobs.values()):
+        return False
+    build_steps = workflow_steps(build)
+    publish_steps = workflow_steps(publish)
+    if build_steps is None or publish_steps is None:
+        return False
+
+    upload_steps = [step for step in build_steps if action_name(step) == "actions/upload-artifact"]
+    if len(upload_steps) != 1 or len(publish_steps) != 2:
+        return False
+    upload = upload_steps[0]
+    download, publication = publish_steps
+    if (
+        action_name(download) != "actions/download-artifact"
+        or action_name(publication) != "pypa/gh-action-pypi-publish"
+    ):
+        return False
+    upload_with = upload.get("with")
+    download_with = download.get("with")
+    if not isinstance(upload_with, dict) or not isinstance(download_with, dict):
+        return False
+
+    action_references: list[object] = []
+    for job in jobs.values():
+        job_steps = workflow_steps(job)
+        if job_steps is not None:
+            action_references.extend(step["uses"] for step in job_steps if "uses" in step)
+    all_actions_pinned = bool(action_references) and all(
+        isinstance(reference, str) and FULL_COMMIT_ACTION.fullmatch(reference)
+        for reference in action_references
+    )
+
+    return all(
+        (
+            build.get("permissions") == {"contents": "read"},
+            publish.get("permissions") == {"id-token": "write"},
+            publish.get("needs") == "build",
+            publish.get("environment") == "pypi",
+            upload_with.get("path") == "dist/",
+            download_with.get("path") == "dist/",
+            upload_with.get("name") == download_with.get("name"),
+            bool(upload_with.get("name")),
+            all_actions_pinned,
+        )
+    )
+
+
+def main() -> None:
+    workflow_path = ROOT / ".github" / "workflows" / "publish.yml"
+    try:
+        workflow = yaml.safe_load(workflow_path.read_text())
+    except OSError, yaml.YAMLError:
+        workflow = None
+    assertions = {"publish.trusted": trusted_publication(workflow)}
+    print(json.dumps({"probe": "release-workflow", "assertions": assertions}, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()
