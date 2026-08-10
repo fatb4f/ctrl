@@ -17,6 +17,16 @@ from qualification_workflow.generated import (
 )
 
 ROOT = Path(__file__).parents[1]
+PROVENANCE_INPUT_DIRECTORIES = (
+    "spec/core",
+    "spec/repository",
+    "spec/qualification",
+    "spec/qualification/generate",
+)
+EXPECTED_PROVENANCE_OUTPUTS = {
+    "spec/generated/qualification.schema.json",
+    "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py",
+}
 LAYERS = ("core", "repository", "qualification", "controller")
 ALLOWED_IMPORTS = {
     "core": set(),
@@ -61,6 +71,13 @@ def dependency_name(requirement: object) -> str:
 
 def forbidden_cue_imports(layer: str, content: str) -> set[str]:
     return set(IMPORT_LAYER.findall(content)) - ALLOWED_IMPORTS[layer]
+
+
+def expected_provenance_inputs() -> set[str]:
+    paths = {"cue.mod/module.cue"}
+    for directory in PROVENANCE_INPUT_DIRECTORIES:
+        paths.update(path.relative_to(ROOT).as_posix() for path in (ROOT / directory).glob("*.cue"))
+    return paths
 
 
 def schema_validator(definition: str) -> Validator:
@@ -134,12 +151,20 @@ def qualification_boundaries() -> None:
     result_cases = {
         "validQualified": (True, True, True, True),
         "missingRepository": (False, False, False, False),
+        "missingClaims": (False, False, False, False),
+        "missingViolations": (False, False, False, False),
+        "componentsList": (False, False, False, False),
+        "componentRootNotString": (False, False, False, False),
+        "emptyComponentRoot": (False, False, False, False),
+        "emptyReason": (False, False, False, False),
         "stringComplete": (False, False, False, False),
         "unknownField": (False, False, False, False),
         "unknownQualified": (True, True, True, False),
         "rejectedSatisfiedViolation": (True, True, True, False),
         "validRejectedComplete": (True, True, True, True),
         "validRejectedIncomplete": (True, True, True, True),
+        "rejectedIncompleteWithoutUnknown": (True, True, True, False),
+        "mixedInconclusive": (True, True, True, True),
         "inconclusiveWithoutUnknown": (True, True, True, False),
     }
     for name, expected in result_cases.items():
@@ -157,6 +182,7 @@ def qualification_boundaries() -> None:
     policy_cases = {
         "valid": (True, True, True, True),
         "unknownObligationRef": (True, True, True, False),
+        "emptyDescription": (False, False, False, False),
     }
     for name, expected in policy_cases.items():
         require_boundary(
@@ -180,8 +206,22 @@ def generated_provenance() -> None:
         fail("generated qualification transports must be transport-only")
     if not generated.get("inputs") or not generated.get("outputs") or not generated.get("tools"):
         fail("generated qualification transports must record inputs, outputs, and tools")
-    recorded_paths = {item["path"] for item in generated["outputs"]}
-    if provenance.relative_to(ROOT).as_posix() in recorded_paths:
+    recorded_inputs = {item["path"] for item in generated["inputs"]}
+    expected_inputs = expected_provenance_inputs()
+    if recorded_inputs != expected_inputs:
+        fail(
+            "generated provenance input closure mismatch: "
+            f"missing={sorted(expected_inputs - recorded_inputs)}, "
+            f"unexpected={sorted(recorded_inputs - expected_inputs)}"
+        )
+    recorded_outputs = {item["path"] for item in generated["outputs"]}
+    if recorded_outputs != EXPECTED_PROVENANCE_OUTPUTS:
+        fail(
+            "generated provenance output closure mismatch: "
+            f"missing={sorted(EXPECTED_PROVENANCE_OUTPUTS - recorded_outputs)}, "
+            f"unexpected={sorted(recorded_outputs - EXPECTED_PROVENANCE_OUTPUTS)}"
+        )
+    if provenance.relative_to(ROOT).as_posix() in recorded_outputs:
         fail("generated provenance must not include its own digest")
     for section in ("inputs", "outputs"):
         for item in generated[section]:

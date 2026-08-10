@@ -28,6 +28,81 @@
       "verdict": "QUALIFIED",
       "violations": []
     },
+    "missingClaims": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "missingViolations": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED"
+    },
+    "componentsList": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": []
+      },
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "componentRootNotString": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {
+          "ctrl": {
+            "id": "ctrl",
+            "root": 123
+          }
+        }
+      },
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "emptyComponentRoot": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {
+          "ctrl": {
+            "id": "ctrl",
+            "root": ""
+          }
+        }
+      },
+      "claims": {},
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
+    "emptyReason": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "semantic-authority": {
+          "claimID": "semantic-authority",
+          "observationID": "cue-vet",
+          "status": "SATISFIED",
+          "reason": ""
+        }
+      },
+      "complete": true,
+      "verdict": "QUALIFIED",
+      "violations": []
+    },
     "stringComplete": {
       "repository": {
         "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
@@ -123,6 +198,46 @@
       "verdict": "REJECTED",
       "violations": ["failed-check"]
     },
+    "rejectedIncompleteWithoutUnknown": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "failed-check": {
+          "claimID": "failed-check",
+          "observationID": "check",
+          "status": "VIOLATED",
+          "reason": "the check failed"
+        }
+      },
+      "complete": false,
+      "verdict": "REJECTED",
+      "violations": ["failed-check"]
+    },
+    "mixedInconclusive": {
+      "repository": {
+        "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "components": {}
+      },
+      "claims": {
+        "completed-check": {
+          "claimID": "completed-check",
+          "observationID": "check",
+          "status": "SATISFIED",
+          "reason": "the check completed"
+        },
+        "pending-evidence": {
+          "claimID": "pending-evidence",
+          "observationID": "collector",
+          "status": "UNKNOWN",
+          "reason": "evidence is unresolved"
+        }
+      },
+      "complete": false,
+      "verdict": "INCONCLUSIVE",
+      "violations": []
+    },
     "inconclusiveWithoutUnknown": {
       "repository": {
         "revision": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
@@ -167,6 +282,24 @@
       },
       "evidenceRequirements": {},
       "obligations": {}
+    },
+    "emptyDescription": {
+      "id": "default-policy",
+      "applicability": {
+        "obligationRefs": ["semantic-authority"]
+      },
+      "evidenceRequirements": {
+        "cue-evidence": {
+          "id": "cue-evidence",
+          "description": ""
+        }
+      },
+      "obligations": {
+        "semantic-authority": {
+          "id": "semantic-authority",
+          "evidenceRequirementRefs": ["cue-evidence"]
+        }
+      }
     }
   }
 }

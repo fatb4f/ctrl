@@ -94,9 +94,7 @@
       "type": "string"
     },
     "NonEmptyString": {
-      "not": {
-        "const": ""
-      },
+      "pattern": "^[\\s\\S]+$",
       "type": "string"
     },
     "ObligationTransport": {

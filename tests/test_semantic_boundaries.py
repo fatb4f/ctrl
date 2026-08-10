@@ -32,10 +32,30 @@ def test_transport_models_do_not_claim_semantic_validity() -> None:
     assert policy.applicability.obligationRefs == ["missing-obligation"]
 
 
-@pytest.mark.parametrize("fixture", ["missingRepository", "stringComplete", "unknownField"])
+@pytest.mark.parametrize(
+    "fixture",
+    [
+        "missingRepository",
+        "missingClaims",
+        "missingViolations",
+        "componentsList",
+        "componentRootNotString",
+        "emptyComponentRoot",
+        "emptyReason",
+        "stringComplete",
+        "unknownField",
+    ],
+)
 def test_transport_models_enforce_strict_structure(fixture: str) -> None:
     with pytest.raises(ValidationError):
         QualificationResultTransport.model_validate(FIXTURES["results"][fixture], strict=True)
+
+
+def test_transport_models_preserve_non_empty_evidence_descriptions() -> None:
+    with pytest.raises(ValidationError):
+        QualificationPolicyTransport.model_validate(
+            FIXTURES["policies"]["emptyDescription"], strict=True
+        )
 
 
 def test_generated_transport_provenance_is_complete_and_non_self_referential() -> None:

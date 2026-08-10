@@ -35,7 +35,7 @@ sourceImports: [
 		destination: "agents/tdd"
 	},
 	{
-		componentID: "openai-sdk-feedback"
+		componentID: "openai-integration"
 		source:      "fatb4f/sdk-feedback"
 		repository:  "https://github.com/fatb4f/sdk-feedback"
 		revision:    "8711b89e3c40f6652101ecba7b1e8cc192907a91"

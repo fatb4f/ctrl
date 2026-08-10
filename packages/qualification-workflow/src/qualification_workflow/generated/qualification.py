@@ -18,14 +18,14 @@ class ComponentIdentityTransport(BaseModel):
         extra='forbid',
     )
     id: constr(pattern=r'^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$')
-    root: str
+    root: constr(pattern=r'^[\s\S]+$')
 
 
 class EvidenceRequirementTransport(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
     )
-    description: str
+    description: constr(pattern=r'^[\s\S]+$')
     id: constr(pattern=r'^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$')
 
 
@@ -61,7 +61,7 @@ class ClaimAdmissionTransport(BaseModel):
     )
     claimID: constr(pattern=r'^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$')
     observationID: constr(pattern=r'^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$')
-    reason: str
+    reason: constr(pattern=r'^[\s\S]+$')
     status: Literal['SATISFIED', 'VIOLATED', 'UNKNOWN']
 
 

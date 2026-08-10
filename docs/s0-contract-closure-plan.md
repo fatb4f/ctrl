@@ -29,9 +29,12 @@ add policy/result binding or runtime qualification.
   })
   ```
 
-- Define `#QualifiedResult`, `#QualifiedInconclusiveResult`,
-  `#QualificationRejected`, and `#QualificationResult` exclusively as
-  refinements of `#QualificationResultTransport`.
+- Define `#QualificationResult` as the canonical semantic refinement of
+  `#QualificationResultTransport`, with `#QualifiedResult` and
+  `#QualificationRejected` as verdict-specific refinements. Inconclusive
+  behavior is enforced conditionally by the canonical result definition so
+  mixed satisfied and unknown claims remain expressible without a wire-level
+  unresolved-claim witness.
 - Define canonical policy types as refinements of their structural transports,
   enforcing map-key identity, obligation reference resolution, applicability,
   and evidence-requirement closure.

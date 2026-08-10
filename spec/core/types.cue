@@ -3,7 +3,7 @@
 // Package core owns qualification-neutral identities and coordinates.
 package core
 
-#NonEmptyString: string & !=""
+#NonEmptyString: string & =~"^[\\s\\S]+$"
 #ID:             #NonEmptyString & =~"^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
 #ComponentID:    #ID
 #ClaimID:        #ID

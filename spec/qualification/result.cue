@@ -3,61 +3,63 @@
 package qualification
 
 import (
-	"struct"
+	"list"
 
 	repo "github.com/fatb4f/ctrl/spec/repository"
 )
 
-#QualifiedResult: Result=(#QualificationResultTransport & {
+#QualificationResult: Result=(#QualificationResultTransport & {
 	repository: repo.#RepositoryRevision
 
 	for claimID, claim in Result.claims {
 		claims: (claimID): claimID: claimID
+
+		if Result.verdict == "QUALIFIED" {
+			claims: (claimID): status: "SATISFIED"
+		}
+
+		if Result.verdict == "INCONCLUSIVE" {
+			claims: (claimID): status: "SATISFIED" | "UNKNOWN"
+		}
 	}
 
-	complete: true
-	verdict:  "QUALIFIED"
-	claims: [string]: {
-		status: "SATISFIED"
+	_claimStatuses:         [for _, claim in Result.claims {claim.status}]
+	_completeMatchesClaims: Result.complete == !list.Contains(_claimStatuses, "UNKNOWN")
+	_completeMatchesClaims: true
+
+	if Result.verdict == "QUALIFIED" {
+		_qualifiedComplete: Result.complete == true
+		_qualifiedComplete: true
+		_noViolations:      len(Result.violations) == 0
+		_noViolations:      true
 	}
-	violations: []
+
+	if Result.verdict == "INCONCLUSIVE" {
+		_inconclusiveIncomplete: Result.complete == false
+		_inconclusiveIncomplete: true
+		_noViolations:           len(Result.violations) == 0
+		_noViolations:           true
+	}
+
+	if Result.verdict == "REJECTED" {
+		_hasViolations: len(Result.violations) >= 1
+		_hasViolations: true
+
+		for violation in Result.violations {
+			claims: (violation): status: "VIOLATED"
+		}
+	}
 })
 
-#QualifiedInconclusiveResult: Result=(#QualificationResultTransport & {
-	repository: repo.#RepositoryRevision
-
-	for claimID, claim in Result.claims {
-		claims: (claimID): claimID: claimID
-	}
-
-	complete: false
-	verdict:  "INCONCLUSIVE"
-	claims: struct.MinFields(1) & {
-		[string]: status: "UNKNOWN"
-	}
-	violations: []
+#QualifiedResult: Result=(#QualificationResult & {
+	_qualifiedVerdict: Result.verdict == "QUALIFIED"
+	_qualifiedVerdict: true
 })
 
-#QualificationRejected: Result=(#QualificationResultTransport & {
-	repository: repo.#RepositoryRevision
-
-	for claimID, claim in Result.claims {
-		claims: (claimID): claimID: claimID
-	}
-
-	for violation in Result.violations {
-		claims: (violation): status: "VIOLATED"
-	}
-
-	if Result.complete == true {
-		claims: [string]: status: "SATISFIED" | "VIOLATED"
-	}
-
-	verdict:    "REJECTED"
-	violations: [string, ...string]
+#QualificationRejected: Result=(#QualificationResult & {
+	_rejectedVerdict: Result.verdict == "REJECTED"
+	_rejectedVerdict: true
 })
-
-#QualificationResult: #QualifiedResult | #QualifiedInconclusiveResult | #QualificationRejected
 
 // S0 authorizes entry into a future promotion boundary only. It does not prove
 // policy coverage or authorize any external effect.

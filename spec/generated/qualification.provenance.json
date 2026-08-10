@@ -5,7 +5,7 @@
       "path": "cue.mod/module.cue"
     },
     {
-      "digest": "sha256:513a786e9e21433876a024edab27935048b6fb21d6dd2e26ad8f281881b5c273",
+      "digest": "sha256:b5986115d3fdfe6d4284b85b7136a3094f4c676522f857a802bb1d5380ecf881",
       "path": "spec/core/types.cue"
     },
     {
@@ -17,7 +17,7 @@
       "path": "spec/qualification/policy.cue"
     },
     {
-      "digest": "sha256:9e56303d0d204ff12790e55730661151237c2584eda5c29a401e2e242d653f9e",
+      "digest": "sha256:7ff9264040a552e691636f5f7266bc2bee2e8b58392b59240bf582ee26be9a24",
       "path": "spec/qualification/result.cue"
     },
     {
@@ -31,11 +31,11 @@
   ],
   "outputs": [
     {
-      "digest": "sha256:d32661d84afce9457fe1caa99b5a4a86967a9b3c735e789c4973b5a72cdbaed8",
+      "digest": "sha256:d66a20ca7c482019b30d75762c3706dd96cb942c84a4e2b256e924d9d0fe5616",
       "path": "spec/generated/qualification.schema.json"
     },
     {
-      "digest": "sha256:c24ca8497b082f1dcd3965250ded6194262d21a5c71196d36cb0239da8a76e7f",
+      "digest": "sha256:b543f953738629c1cc890a8dbf6aca3cd13cfa9de45e947a8e38fd7c7c491aac",
       "path": "packages/qualification-workflow/src/qualification_workflow/generated/qualification.py"
     }
   ],
